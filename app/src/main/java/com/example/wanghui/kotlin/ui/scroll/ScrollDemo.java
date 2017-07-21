@@ -3,6 +3,7 @@ package com.example.wanghui.kotlin.ui.scroll;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
@@ -40,5 +41,12 @@ public class ScrollDemo extends FrameLayout {
             }
         }, 2000);
 
+        int a = 0;
+        switch (a){
+            case MotionEvent.ACTION_DOWN:
+                break;
+            case MotionEvent.ACTION_UP:
+                break;
+        }
     }
 }
