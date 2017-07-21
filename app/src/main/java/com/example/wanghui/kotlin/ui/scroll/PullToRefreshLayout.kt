@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.Scroller
 
 /**
@@ -20,6 +21,8 @@ abstract class PullToRefreshLayout<T : View> : ViewGroup{
     var contentView : T? = null
     var scroller : Scroller? = null
     var lastY : Int = 0
+    var maxHeightForHeaderAndFooter : Int = 0  //可滑动的最大头部和尾部
+    var minHeightForHeaderAndFooter : Int = 0
 
     constructor(context: Context?) : super(context){init(context)}
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs){init(context)}
@@ -30,6 +33,9 @@ abstract class PullToRefreshLayout<T : View> : ViewGroup{
         initFooterView(context)
         initContentView(context)
         scroller = Scroller(context)
+        val windowManager : WindowManager = context!!.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        maxHeightForHeaderAndFooter = windowManager.defaultDisplay.height/4
+        maxHeightForHeaderAndFooter = windowManager.defaultDisplay.height/8
     }
 
     private fun initContentView(context: Context?) {
@@ -77,12 +83,13 @@ abstract class PullToRefreshLayout<T : View> : ViewGroup{
         when (ev!!.action) {
             MotionEvent.ACTION_DOWN -> {
                 lastY = ev!!.rawY.toInt()
+                return false
             }
             MotionEvent.ACTION_MOVE -> {
                 var offset = ev!!.rawY - lastY
-                if (offset > 0){
-                    return true
-                }
+//                if (){
+//                    return true
+//                }
             }
             MotionEvent.ACTION_UP -> {
                 return false
@@ -91,7 +98,7 @@ abstract class PullToRefreshLayout<T : View> : ViewGroup{
                 return false
             }
         }
-        return false
+        return super.onInterceptTouchEvent(ev)
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
