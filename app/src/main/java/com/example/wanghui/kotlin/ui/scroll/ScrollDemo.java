@@ -1,5 +1,6 @@
 package com.example.wanghui.kotlin.ui.scroll;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -49,4 +50,5 @@ public class ScrollDemo extends FrameLayout {
                 break;
         }
     }
+
 }

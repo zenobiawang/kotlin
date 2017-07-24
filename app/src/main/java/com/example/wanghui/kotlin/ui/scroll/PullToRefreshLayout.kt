@@ -2,6 +2,7 @@ package com.example.wanghui.kotlin.ui.scroll
 
 import android.content.Context
 import android.support.v4.view.MotionEventCompat
+import android.support.v4.widget.SwipeRefreshLayout
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
@@ -23,6 +24,7 @@ abstract class PullToRefreshLayout<T : View> : ViewGroup{
     var lastY : Int = 0
     var maxHeightForHeaderAndFooter : Int = 0  //可滑动的最大头部和尾部
     var minHeightForHeaderAndFooter : Int = 0
+    var refreshListener : OnRefreshListener? = null
 
     constructor(context: Context?) : super(context){init(context)}
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs){init(context)}
@@ -34,8 +36,8 @@ abstract class PullToRefreshLayout<T : View> : ViewGroup{
         initContentView(context)
         scroller = Scroller(context)
         val windowManager : WindowManager = context!!.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        maxHeightForHeaderAndFooter = windowManager.defaultDisplay.height/4
-        maxHeightForHeaderAndFooter = windowManager.defaultDisplay.height/8
+        maxHeightForHeaderAndFooter = windowManager.defaultDisplay.height/5
+        minHeightForHeaderAndFooter = windowManager.defaultDisplay.height/8
     }
 
     private fun initContentView(context: Context?) {
@@ -107,11 +109,28 @@ abstract class PullToRefreshLayout<T : View> : ViewGroup{
                 var currentY = event!!.rawY
                 var offset = currentY - lastY
                 lastY = currentY.toInt()
-                scrollBy(0, - offset.toInt())
+                Log.d(TAG, "wh---- " + scrollY + "---" + offset)
+                if (offset > 0 && -maxHeightForHeaderAndFooter < scrollY){
+                    scrollBy(0, - offset.toInt())
+                }else if (offset < 0 && scrollY < maxHeightForHeaderAndFooter){
+                    scrollBy(0, - offset.toInt())
+                }
             }
             MotionEvent.ACTION_UP ->{
                 //todo 刷新操作
+                if (Math.abs(scrollY) > minHeightForHeaderAndFooter){  //满足刷新条件
+                    if (scrollY > 0 && refreshListener != null){
+                        (refreshListener as OnRefreshListener).onRefresh()
+                    }else if (refreshListener != null){
+                        (refreshListener as OnRefreshListener).onLoadNext()
+                    }
+                    scrollBy(0, - (Math.abs(scrollY) - minHeightForHeaderAndFooter) * scrollY/Math.abs(scrollY))
+
+                }else{
+                    scrollBy(0, - scrollY)
+                }
             }
+
         }
         return true
     }
