@@ -3,6 +3,8 @@ package com.example.wanghui.kotlin.ui.view.roundview
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
+import android.os.Bundle
+import android.os.Parcelable
 import android.util.AttributeSet
 import android.widget.ImageView
 import com.example.wanghui.kotlin.R
@@ -14,6 +16,9 @@ import android.util.TypedValue
  * Created by wanghui on 2017/7/26.
  */
 class RoundImageView : ImageView {
+    val STORAGE_INSTANCE = "storage_instance"
+    val STORAGE_TYPE = "storage_type"
+    val STORAGE_RADIUS = "storage_radius"
     val CIRCLE : Int = 1
     val ROUND : Int = 2
     var type : Int = 0
@@ -88,6 +93,24 @@ class RoundImageView : ImageView {
 
         if (type == ROUND){
             roundRect = RectF(0F, 0F, width.toFloat(), height.toFloat())
+        }
+    }
+
+    override fun onSaveInstanceState(): Parcelable {
+        val bundle = Bundle()
+        bundle.putParcelable(STORAGE_INSTANCE, super.onSaveInstanceState())
+        bundle.putInt(STORAGE_TYPE, type)
+        bundle.putInt(STORAGE_RADIUS, radius)
+        return bundle
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        if (state is Bundle){
+            super.onRestoreInstanceState(state.getParcelable(STORAGE_INSTANCE))
+            type = state.getInt(STORAGE_TYPE)
+            radius = state.getInt(STORAGE_RADIUS)
+        }else{
+            super.onRestoreInstanceState(state)
         }
     }
 
