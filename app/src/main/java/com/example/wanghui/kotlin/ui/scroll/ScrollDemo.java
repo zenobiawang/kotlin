@@ -1,12 +1,10 @@
 package com.example.wanghui.kotlin.ui.scroll;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
 import java.util.Timer;
 import java.util.TimerTask;

@@ -1,8 +1,6 @@
 package com.example.wanghui.kotlin.ui.scroll
 
 import android.content.Context
-import android.support.v4.view.MotionEventCompat
-import android.support.v4.widget.SwipeRefreshLayout
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
@@ -14,6 +12,8 @@ import android.widget.Scroller
 /**
  * Created by wanghui on 2017/7/20.
  * 刷新控件
+ *
+ * todo 多次向下拉的状态冲突处理 下拉中header UI变换处理
  */
 abstract class PullToRefreshLayout<T : View> : ViewGroup{
     val TAG : String = "PullToRefreshLayout"
@@ -133,6 +133,10 @@ abstract class PullToRefreshLayout<T : View> : ViewGroup{
 
         }
         return true
+    }
+
+    fun completeFresh(){
+        scrollBy(0, - scrollY)
     }
 
 }
