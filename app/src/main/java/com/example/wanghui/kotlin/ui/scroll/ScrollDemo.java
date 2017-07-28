@@ -1,6 +1,12 @@
 package com.example.wanghui.kotlin.ui.scroll;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -46,6 +52,33 @@ public class ScrollDemo extends FrameLayout {
                 break;
             case MotionEvent.ACTION_UP:
                 break;
+        }
+    }
+
+    public class demo extends Drawable{
+
+        public demo(Paint paint) {
+            draw(null);
+        }
+
+        @Override
+        public void draw(@NonNull Canvas canvas) {
+
+        }
+
+        @Override
+        public void setAlpha(@IntRange(from = 0, to = 255) int alpha) {
+
+        }
+
+        @Override
+        public void setColorFilter(@Nullable ColorFilter colorFilter) {
+
+        }
+
+        @Override
+        public int getOpacity() {
+            return 0;
         }
     }
 

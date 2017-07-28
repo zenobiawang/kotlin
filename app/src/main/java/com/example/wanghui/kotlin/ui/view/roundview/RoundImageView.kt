@@ -76,7 +76,7 @@ class RoundImageView : ImageView {
         }
 
         val shader = BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
-        var scale = 1.0f
+        var scale : Float
         if (type == CIRCLE){
             scale = measuredHeight * 1.0f/Math.min(bitmap.height, bitmap.width)
         }else{
