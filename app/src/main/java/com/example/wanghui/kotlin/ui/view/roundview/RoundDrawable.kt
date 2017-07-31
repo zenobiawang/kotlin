@@ -24,6 +24,7 @@ class RoundDrawable(bitmap: Bitmap) : Drawable() {
     override fun setBounds(left: Int, top: Int, right: Int, bottom: Int) {
         super.setBounds(left, top, right, bottom)
         rectf = RectF(left.toFloat(), top.toFloat(), right.toFloat(), bottom.toFloat())
+//        rectf = RectF(0F, 0F, intrinsicWidth.toFloat(), intrinsicHeight.toFloat())
     }
 
     override fun draw(canvas: Canvas?) {

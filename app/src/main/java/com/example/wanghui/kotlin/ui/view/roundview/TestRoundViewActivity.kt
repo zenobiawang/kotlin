@@ -16,7 +16,6 @@ class TestRoundViewActivity : Activity() {
 
         val bitmap = BitmapFactory.decodeResource(resources, R.drawable.test)
         val drawable = RoundDrawable(bitmap)
-        drawable.radius = 30f
         imageView_round.setImageDrawable(drawable)
     }
 }
