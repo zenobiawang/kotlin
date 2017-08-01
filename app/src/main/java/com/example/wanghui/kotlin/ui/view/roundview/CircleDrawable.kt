@@ -7,7 +7,7 @@ import android.support.annotation.IntRange
 /**
  * Created by wanghui on 2017/7/27.
  */
-class RoundDrawable(bitmap: Bitmap) : Drawable() {
+class CircleDrawable(bitmap: Bitmap) : Drawable() {
     var mBitmap : Bitmap? = null
     var paint : Paint? = null
     var rectf : RectF? = null
@@ -23,20 +23,19 @@ class RoundDrawable(bitmap: Bitmap) : Drawable() {
 
     override fun setBounds(left: Int, top: Int, right: Int, bottom: Int) {
         super.setBounds(left, top, right, bottom)
-        rectf = RectF(left.toFloat(), top.toFloat(), right.toFloat(), bottom.toFloat())
-//        rectf = RectF(0F, 0F, intrinsicWidth.toFloat(), intrinsicHeight.toFloat())
     }
 
     override fun draw(canvas: Canvas?) {
-        canvas!!.drawRoundRect(rectf, radius, radius, paint)
+        val radius = Math.min(mBitmap!!.height, mBitmap!!.width)/2
+        canvas!!.drawCircle(radius.toFloat(), radius.toFloat(), radius.toFloat(), paint)
     }
 
     override fun getIntrinsicHeight(): Int {
-        return mBitmap!!.height
+        return Math.min(mBitmap!!.height, mBitmap!!.width)
     }
 
     override fun getIntrinsicWidth(): Int {
-        return mBitmap!!.width
+        return Math.min(mBitmap!!.height, mBitmap!!.width)
     }
 
     override fun setAlpha(alpha: Int) {
