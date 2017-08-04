@@ -46,7 +46,7 @@ class BothTextView : TextView{
             val subTextWidth = subTextPaint.measureText(subText)
             var compoundDrawableWidth = 0
             if (compoundDrawables[2] != null){
-                compoundDrawableWidth = compoundDrawables[2].intrinsicWidth
+                compoundDrawableWidth = compoundDrawables[2].intrinsicWidth + compoundDrawablePadding
             }
             val right = width - subTextWidth - paddingRight - compoundDrawableWidth
             canvas!!.drawText(subText, right, (height - subTextPaint.descent() - subTextPaint.ascent())/2, subTextPaint)

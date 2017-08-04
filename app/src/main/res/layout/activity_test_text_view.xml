@@ -13,5 +13,7 @@
         app:subText="lksdjflkasj"
         app:subTextSize="13dp"
         android:gravity="center_vertical"
-        android:padding="10dp"/>
+        android:padding="10dp"
+        android:drawableRight="@mipmap/ic_launcher"
+        android:drawablePadding="20dp"/>
 </LinearLayout>
