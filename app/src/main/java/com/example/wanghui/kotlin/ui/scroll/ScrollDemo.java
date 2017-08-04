@@ -55,31 +55,6 @@ public class ScrollDemo extends FrameLayout {
         }
     }
 
-    public class demo extends Drawable{
-
-        public demo(Paint paint) {
-            draw(null);
-        }
-
-        @Override
-        public void draw(@NonNull Canvas canvas) {
-
-        }
-
-        @Override
-        public void setAlpha(@IntRange(from = 0, to = 255) int alpha) {
-
-        }
-
-        @Override
-        public void setColorFilter(@Nullable ColorFilter colorFilter) {
-
-        }
-
-        @Override
-        public int getOpacity() {
-            return 0;
-        }
-    }
+    int a = true? 0 : 1;
 
 }

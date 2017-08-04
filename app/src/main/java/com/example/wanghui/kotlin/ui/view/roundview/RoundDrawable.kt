@@ -27,9 +27,11 @@ class RoundDrawable(bitmap: Bitmap) : Drawable() {
         val matrix = Matrix()
         canvasP!!.drawRoundRect(rect, radius, radius, paint)
         paint!!.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
-        canvasP!!.drawBitmap(mBitmap, matrix, paint)
+        canvasP!!.drawBitmap(mBitmap, canvas!!.matrix, paint)
         paint!!.xfermode = null
-        canvas!!.drawBitmap(bitmap, null, RectF(), paint)
+        canvas!!.drawBitmap(bitmap, matrix, paint)
+
+//        canvas.drawRoundRect() 两种实现方式，并没有找到配合scaleType的方式
     }
 
     override fun setAlpha(alpha: Int) {
@@ -37,7 +39,7 @@ class RoundDrawable(bitmap: Bitmap) : Drawable() {
     }
 
     override fun getOpacity(): Int {
-        return PixelFormat.OPAQUE
+        return PixelFormat.TRANSLUCENT
     }
 
     override fun setColorFilter(colorFilter: ColorFilter?) {
