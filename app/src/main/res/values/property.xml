@@ -15,4 +15,14 @@
         <attr name="innerPadding" format="dimension"/>
     </declare-styleable>
     
+    <declare-styleable name="NoteBookLayout">
+        <attr name="lines" format="integer" />
+        <attr name="lineHeight" format="dimension"/>
+        <attr name="lineColor" format="color"/>
+        <attr name="lineWidthMode" format="integer">
+            <enum name="match_parent" value="-1"/>
+            <enum name="wrap_content" value="-2"/>
+        </attr>
+    </declare-styleable>
+    
 </resources>
