@@ -8,12 +8,12 @@
     <com.example.wanghui.kotlin.ui.view.textview.BothTextView
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:text="telksjsadlkfja"
+        android:text="我的优惠券"
         android:textSize="15dp"
-        app:subText="lksdjflkasj"
+        app:subText="2里看见法拉克简单"
         app:subTextSize="13dp"
         android:gravity="center_vertical"
         android:padding="10dp"
         android:drawableRight="@mipmap/ic_launcher"
-        android:drawablePadding="20dp"/>
+        android:drawablePadding="5dp"/>
 </LinearLayout>

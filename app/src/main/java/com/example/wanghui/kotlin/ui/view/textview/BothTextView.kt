@@ -14,12 +14,14 @@ import com.example.wanghui.kotlin.R
 /**
  * Created by wanghui on 2017/8/2.
  * 两侧都有文字
+ * 文字过多处理
  */
 class BothTextView : TextView{
     var paint = Paint()
     var subText : String? = null
     var subTextColor : Int = 0
     var subTextSize : Int = 0
+    var innerPadding : Int = 0
 
 
     constructor(context: Context?) : super(context)
@@ -35,6 +37,8 @@ class BothTextView : TextView{
         subTextColor = a.getColor(R.styleable.BothTextView_subTextColor, context.resources.getColor(R.color.red))
         subTextSize = a.getDimensionPixelSize(R.styleable.BothTextView_subTextSize,
                 TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 13f, resources.displayMetrics).toInt())
+        innerPadding = a.getDimensionPixelSize(R.styleable.BothTextView_innerPadding,
+                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0f, resources.displayMetrics).toInt())
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -49,6 +53,7 @@ class BothTextView : TextView{
                 compoundDrawableWidth = compoundDrawables[2].intrinsicWidth + compoundDrawablePadding
             }
             val right = width - subTextWidth - paddingRight - compoundDrawableWidth
+            val rightStart = Math.max(right, paint.measureText(text.toString()) + suggestedMinimumWidth + innerPadding)  //怎么避免文字过长遮挡左侧text
             canvas!!.drawText(subText, right, (height - subTextPaint.descent() - subTextPaint.ascent())/2, subTextPaint)
         }
     }
