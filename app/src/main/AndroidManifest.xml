@@ -10,10 +10,10 @@
         android:theme="@style/AppTheme">
         <activity android:name=".Main2Activity" />
         <activity android:name=".MainActivity" />
-        <activity android:name=".ui.view.roundview.TestRoundViewActivity">
-
-        </activity>
+        <activity android:name=".ui.view.roundview.TestRoundViewActivity"></activity>
         <activity android:name=".ui.view.textview.TestTextViewActivity">
+        </activity>
+        <activity android:name=".ui.view.line.TestLineViewActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
