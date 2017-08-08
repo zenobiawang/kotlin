@@ -22,7 +22,7 @@ import com.example.wanghui.kotlin.R
  * ------------
  * ------------
  */
-class NoteBookLayout : LinearLayout{
+class NoteBookLayout : ViewGroup{
     val TAG = "NoteBookLayout"
     var lines : Int = 5   //范围内分割线的数量
     var lineHeight : Int = 1 //分割线的高度
@@ -30,6 +30,7 @@ class NoteBookLayout : LinearLayout{
     var lineWidthMode : Int = 0 //分割线宽度 -1 父布局有多大，就有多宽  -2 子布局内容有多大，就有多宽
     var interval :  Int = 0 //行与行之间的间隔
     var paint : Paint? = null
+    var linePadding = 0 //线条与边框的边距
 
     constructor(context: Context?) : super(context){init(context, null)}
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs){init(context, attrs)}
@@ -58,22 +59,26 @@ class NoteBookLayout : LinearLayout{
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-
+        for (i in 0..childCount -1){
+            getChildAt(i).layout(l, i * interval, r, (i + 1) * interval)
+        }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        Log.d(TAG, "wh----$height---$measuredWidth")
+        for (i in 0..childCount -1){
+            Log.d(TAG, "wh-----" + childCount)
+            measureChild(getChildAt(i), widthMeasureSpec, MeasureSpec.makeMeasureSpec(interval, MeasureSpec.EXACTLY))
+        }
+        interval = measuredHeight/lines
     }
 
 
     override fun onDraw(canvas: Canvas?) {
-        interval = measuredHeight/lines
         paint!!.color = lineColor
         paint!!.strokeWidth = lineHeight.toFloat()
-        for (i in 1..lines - 1){
-            Log.d(TAG, "wh-----" + i * interval)
-            canvas!!.drawLine(paddingLeft.toFloat(), (i * interval).toFloat(), (width - paddingRight).toFloat(), (i * interval).toFloat(), paint)
+        for (i in 0..lines){
+            canvas!!.drawLine(linePadding.toFloat(), (i * interval).toFloat(), (width - linePadding).toFloat(), (i * interval).toFloat(), paint)
         }
     }
 }
