@@ -12,7 +12,8 @@
         <com.example.wanghui.kotlin.ui.view.line.NoteBookLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:lines="20">
+            app:lines="20"
+            app:lineHeight="1dp">
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

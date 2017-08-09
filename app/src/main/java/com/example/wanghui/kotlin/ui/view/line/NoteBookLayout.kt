@@ -55,6 +55,7 @@ class NoteBookLayout : ViewGroup{
         lineColor = a.getColor(R.styleable.NoteBookLayout_lineColor, resources.getColor(R.color.red))
         a.recycle()
         paint = Paint()
+        paint!!.isAntiAlias = true  //消除锯齿
         setWillNotDraw(false)
     }
 
@@ -78,7 +79,7 @@ class NoteBookLayout : ViewGroup{
         paint!!.color = lineColor
         paint!!.strokeWidth = lineHeight.toFloat()
         for (i in 0..lines){
-            canvas!!.drawLine(linePadding.toFloat(), (i * interval).toFloat(), (width - linePadding).toFloat(), (i * interval).toFloat(), paint)
+            canvas!!.drawLine(linePadding.toFloat(), (i * interval - lineHeight).toFloat(), (width - linePadding).toFloat(), (i * interval).toFloat(), paint)
         }
     }
 }
