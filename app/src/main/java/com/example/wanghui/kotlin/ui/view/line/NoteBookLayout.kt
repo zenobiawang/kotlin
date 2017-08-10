@@ -1,14 +1,11 @@
 package com.example.wanghui.kotlin.ui.view.line
 
 import android.content.Context
-import android.content.res.TypedArray
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.util.Log
 import android.util.TypedValue
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import com.example.wanghui.kotlin.R
 
 /**
@@ -22,7 +19,7 @@ import com.example.wanghui.kotlin.R
  * ------------
  * ------------
  */
-class NoteBookLayout : ViewGroup{
+class NoteBookLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : ViewGroup(context, attrs, defStyleAttr, defStyleRes) {
     val TAG = "NoteBookLayout"
     var lines : Int = 5   //范围内分割线的数量
     var lineHeight : Int = 1 //分割线的高度
@@ -32,11 +29,9 @@ class NoteBookLayout : ViewGroup{
     var paint : Paint? = null
     var linePadding = 0 //线条与边框的边距
 
-    constructor(context: Context?) : super(context){init(context, null)}
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs){init(context, attrs)}
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr){init(context, attrs)}
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes){init(context, attrs)}
-
+    constructor(context: Context) : this(context, null, 0, 0)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0, 0)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : this(context, attrs, defStyleAttr, 0)
 
     /**
      * <attr name="lines" format="integer" />
@@ -47,13 +42,13 @@ class NoteBookLayout : ViewGroup{
     <enum name="wrap_content" value="-2"/>
     </attr>
      */
-    private fun init(context: Context?, attrs: AttributeSet?){
-        val a = context!!.obtainStyledAttributes(attrs, R.styleable.NoteBookLayout)
-        lines = a.getInt(R.styleable.NoteBookLayout_lines, 5)
-        lineHeight = a.getDimensionPixelSize(R.styleable.NoteBookLayout_lineHeight,
-                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, resources.displayMetrics).toInt())
-        lineColor = a.getColor(R.styleable.NoteBookLayout_lineColor, resources.getColor(R.color.red))
-        a.recycle()
+    init {
+        context.obtainStyledAttributes(attrs, R.styleable.NoteBookLayout).apply {
+            lines = getInt(R.styleable.NoteBookLayout_lines, 5)
+            lineHeight = getDimensionPixelSize(R.styleable.NoteBookLayout_lineHeight,
+                    TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, resources.displayMetrics).toInt())
+            lineColor = getColor(R.styleable.NoteBookLayout_lineColor, resources.getColor(R.color.red))
+        }.recycle()
         paint = Paint()
         paint!!.isAntiAlias = true  //消除锯齿
         setWillNotDraw(false)
@@ -68,7 +63,6 @@ class NoteBookLayout : ViewGroup{
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         for (i in 0..childCount -1){
-            Log.d(TAG, "wh-----" + childCount)
             measureChild(getChildAt(i), widthMeasureSpec, MeasureSpec.makeMeasureSpec(interval, MeasureSpec.EXACTLY))
         }
         interval = measuredHeight/lines

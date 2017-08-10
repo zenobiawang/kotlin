@@ -1,21 +1,20 @@
 package com.example.wanghui.kotlin
 
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import android.widget.Button
+import android.widget.TextView
 import com.example.wanghui.kotlin.test.TestAssetActivity
 import com.example.wanghui.kotlin.ui.view.line.TestLineViewActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 /**
  * Created by wanghui on 2017/8/10.
+ * 主页
  */
 class MainActivity : AppCompatActivity(){
     lateinit var items : MutableList<Item>
@@ -32,22 +31,19 @@ class MainActivity : AppCompatActivity(){
         items.add(Item("test", TestAssetActivity::class.java))
     }
 
-    inner class MyAdapter(context: Context, items : MutableList<Item>) : BaseAdapter(){
-        var context : Context = context
-        var items : MutableList<Item> = items
-
+    inner class MyAdapter(var context: Context, var items : MutableList<Item>) : BaseAdapter(){
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-            val button : Button = Button(context)
-            button.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-            button.text = items[position].itemName
-            button.setOnClickListener {
+            val textView : TextView = TextView(context)
+            textView.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            textView.text = items[position].itemName
+            textView.setOnClickListener {
                 run {
                     val intent = Intent(context, items[position].clazz)
                     context.startActivity(intent)
                 }
             }
 
-            return button
+            return textView
         }
 
         override fun getItem(position: Int): Any {
@@ -65,8 +61,5 @@ class MainActivity : AppCompatActivity(){
     }
 
 
-    class Item(itemName: String, clazz: Class<*>){
-        val itemName = itemName
-        val clazz = clazz
-    }
+    class Item(var itemName: String, var clazz: Class<*>)
 }
