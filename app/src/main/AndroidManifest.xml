@@ -8,18 +8,19 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Main2Activity" />
-        <activity android:name=".MainActivity" />
-        <activity android:name=".ui.view.roundview.TestRoundViewActivity"></activity>
-        <activity android:name=".ui.view.textview.TestTextViewActivity">
-        </activity>
-        <activity android:name=".ui.view.line.TestLineViewActivity">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".Main2Activity" />
+        <activity android:name=".ui.view.roundview.TestRoundViewActivity" />
+        <activity android:name=".ui.view.textview.TestTextViewActivity"></activity>
+        <activity android:name=".ui.view.line.TestLineViewActivity">
+        </activity>
+        <activity android:name=".test.TestAssetActivity"></activity>
     </application>
 
 </manifest>

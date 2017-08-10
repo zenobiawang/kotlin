@@ -13,6 +13,13 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+    sourceSets{
+        main{
+            assets.srcDirs = ['extral-assets', 'src/main/assets/']
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false

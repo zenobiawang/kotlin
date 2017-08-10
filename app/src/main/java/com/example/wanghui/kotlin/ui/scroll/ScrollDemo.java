@@ -1,6 +1,7 @@
 package com.example.wanghui.kotlin.ui.scroll;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
@@ -9,8 +10,14 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
+
+import com.example.wanghui.kotlin.Main2Activity;
+import com.example.wanghui.kotlin.MainActivity;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -53,8 +60,10 @@ public class ScrollDemo extends FrameLayout {
             case MotionEvent.ACTION_UP:
                 break;
         }
+
     }
 
     int a = true? 0 : 1;
+
 
 }
