@@ -14,8 +14,9 @@ import android.util.TypedValue
 
 /**
  * Created by wanghui on 2017/7/26.
+ * 圆角图片
  */
-class RoundImageView : ImageView {
+class RoundImageView(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : ImageView(context, attrs, defStyleAttr, defStyleRes) {
     val STORAGE_INSTANCE = "storage_instance"
     val STORAGE_TYPE = "storage_type"
     val STORAGE_RADIUS = "storage_radius"
@@ -24,19 +25,19 @@ class RoundImageView : ImageView {
     var type : Int = 0
     var radius : Int = 0
     var roundRect : RectF? = null
+    val bitmapPaint = Paint()
 
-    constructor(context: Context?) : super(context)
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs){init(context, attrs)}
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr){init(context, attrs)}
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes){init(context, attrs)}
+    constructor(context: Context) : this(context, null, 0, 0)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0, 0)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : this(context, attrs, defStyleAttr, 0)
 
-    fun init(context: Context?, attrs: AttributeSet?){
-        val array = context!!.obtainStyledAttributes(attrs, R.styleable.RoundImageView)
-        type = array.getInt(R.styleable.RoundImageView_type, 1)
-        radius = array.getDimensionPixelSize(
-                R.styleable.RoundImageView_radius, TypedValue
-                .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, resources.displayMetrics).toInt())// 默认为10dp
-        array.recycle()
+    init {
+        context.obtainStyledAttributes(attrs, R.styleable.RoundImageView).apply {
+            type = getInt(R.styleable.RoundImageView_type, 1)
+            radius = getDimensionPixelSize(
+                    R.styleable.RoundImageView_radius, TypedValue
+                    .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, resources.displayMetrics).toInt())// 默认为10dp
+        }.recycle()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -49,18 +50,17 @@ class RoundImageView : ImageView {
         }
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         if (drawable == null){
             return
         }
-        val bitmapPaint = Paint()
+
         bitmapPaint.isAntiAlias = true
         bitmapPaint.shader = setUpShader()
 
-        if (type == CIRCLE){
-            canvas!!.drawCircle(radius.toFloat(), radius.toFloat(), radius.toFloat(), bitmapPaint)
-        }else if (type == ROUND){
-            canvas!!.drawRoundRect(roundRect, radius.toFloat(), radius.toFloat(), bitmapPaint)
+        when(type){
+            CIRCLE -> canvas.drawCircle(radius.toFloat(), radius.toFloat(), radius.toFloat(), bitmapPaint)
+            ROUND -> canvas.drawRoundRect(roundRect, radius.toFloat(), radius.toFloat(), bitmapPaint)
         }
     }
 
@@ -76,14 +76,12 @@ class RoundImageView : ImageView {
         }
 
         val shader = BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
-        var scale : Float
-        if (type == CIRCLE){
-            scale = measuredHeight * 1.0f/Math.min(bitmap.height, bitmap.width)
-        }else{
-            scale = Math.max(measuredWidth * 1.0f/bitmap.width, measuredHeight * 1.0f/bitmap.height)
+        val scale : Float
+        when(type){
+            CIRCLE -> scale = measuredHeight * 1.0f/Math.min(bitmap.height, bitmap.width)
+            else -> scale = Math.max(measuredWidth * 1.0f/bitmap.width, measuredHeight * 1.0f/bitmap.height)
         }
-        val matrix = Matrix()
-        matrix.setScale(scale, scale)
+        val matrix = Matrix().apply { setScale(scale, scale) }
         shader.setLocalMatrix(matrix)
         return shader
     }
@@ -97,11 +95,11 @@ class RoundImageView : ImageView {
     }
 
     override fun onSaveInstanceState(): Parcelable {
-        val bundle = Bundle()
-        bundle.putParcelable(STORAGE_INSTANCE, super.onSaveInstanceState())
-        bundle.putInt(STORAGE_TYPE, type)
-        bundle.putInt(STORAGE_RADIUS, radius)
-        return bundle
+        return Bundle().apply {
+            putParcelable(STORAGE_INSTANCE, super.onSaveInstanceState())
+            putInt(STORAGE_TYPE, type)
+            putInt(STORAGE_RADIUS, radius)
+        }
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {

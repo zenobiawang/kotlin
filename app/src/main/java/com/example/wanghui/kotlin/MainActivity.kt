@@ -2,15 +2,24 @@ package com.example.wanghui.kotlin
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.TypedArray
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutCompat
+import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.example.wanghui.kotlin.test.TestAssetActivity
+import com.example.wanghui.kotlin.ui.view.group.smsCode
 import com.example.wanghui.kotlin.ui.view.line.TestLineViewActivity
+import com.example.wanghui.kotlin.ui.view.roundview.TestRoundViewActivity
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.*
+import org.jetbrains.anko.sdk25.coroutines.onClick
 
 /**
  * Created by wanghui on 2017/8/10.
@@ -29,21 +38,37 @@ class MainActivity : AppCompatActivity(){
         items = ArrayList()
         items.add(Item("line", TestLineViewActivity::class.java))
         items.add(Item("test", TestAssetActivity::class.java))
+        items.add(Item("roundView", TestRoundViewActivity::class.java))
     }
 
+    /**
+     * 列表adapter
+     */
     inner class MyAdapter(var context: Context, var items : MutableList<Item>) : BaseAdapter(){
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-            val textView : TextView = TextView(context)
-            textView.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-            textView.text = items[position].itemName
-            textView.setOnClickListener {
-                run {
-                    val intent = Intent(context, items[position].clazz)
-                    context.startActivity(intent)
+//            return with(context) {
+//                linearLayout{
+//                    orientation = LinearLayout.VERTICAL
+//                    textView{
+//                        text = items[position].itemName
+//                        gravity = Gravity.CENTER
+//                        onClick {
+//                            val intent = Intent(this@MyAdapter.context, items[position].clazz)
+//                            this@MyAdapter.context.startActivity(intent)
+//                        }
+//                    }.lparams(wrapContent, wrapContent)
+//                    smsCode("hello")
+//                }
+//            }
+            return TextView(context).apply {
+                layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                padding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15f, resources.displayMetrics).toInt()
+                text = items[position].itemName
+                onClick {
+                    val intent = Intent(this@MyAdapter.context, items[position].clazz)
+                    this@MyAdapter.context.startActivity(intent)
                 }
             }
-
-            return textView
         }
 
         override fun getItem(position: Int): Any {
