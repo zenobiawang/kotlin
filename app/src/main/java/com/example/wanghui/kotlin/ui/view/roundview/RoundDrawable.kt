@@ -10,7 +10,7 @@ import android.graphics.drawable.Drawable
 class RoundDrawable(var bitmap: Bitmap) : Drawable() {
     var paint : Paint = Paint()
     var radius = 30f
-    var rect : RectF? = null
+    lateinit var rect : RectF
 
     override fun setBounds(left: Int, top: Int, right: Int, bottom: Int) {
         super.setBounds(left, top, right, bottom)
@@ -18,14 +18,14 @@ class RoundDrawable(var bitmap: Bitmap) : Drawable() {
     }
 
     override fun draw(canvas: Canvas) {
-        val bitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
-        val canvasP = Canvas(bitmap)
+        val bitmapP = Bitmap.createBitmap((rect.right - rect.left).toInt(), (rect.bottom - rect.top).toInt(), Bitmap.Config.ARGB_8888)
+        val canvasP = Canvas(bitmapP)
         val matrix = Matrix()
         canvasP.drawRoundRect(rect, radius, radius, paint)
         paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
-        canvasP.drawBitmap(bitmap, canvas.matrix, paint)
+        canvasP.drawBitmap(bitmap, matrix, paint)
         paint.xfermode = null
-        canvas.drawBitmap(bitmap, matrix, paint)
+        canvas.drawBitmap(bitmapP, matrix, paint)
 
 //        canvas.drawRoundRect() 两种实现方式，并没有找到配合scaleType的方式
     }

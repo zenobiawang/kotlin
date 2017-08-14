@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.res.TypedArray
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutCompat
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -57,7 +56,7 @@ class MainActivity : AppCompatActivity(){
 //                            this@MyAdapter.context.startActivity(intent)
 //                        }
 //                    }.lparams(wrapContent, wrapContent)
-//                    smsCode("hello")
+//                    smsCode("hello")   //存疑
 //                }
 //            }
             return TextView(context).apply {

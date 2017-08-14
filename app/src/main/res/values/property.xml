@@ -24,5 +24,13 @@
             <enum name="wrap_content" value="-2"/>
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="FollowLayout">
+        <attr name="item_padding" format="dimension"/>
+        <attr name="orientation" format="integer">
+            <enum name="vertical" value="-1"/>
+            <enum name="horizontal" value="-2"/>
+        </attr>
+    </declare-styleable>
     
 </resources>
