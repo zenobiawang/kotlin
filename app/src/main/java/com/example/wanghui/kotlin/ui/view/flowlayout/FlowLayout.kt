@@ -3,6 +3,8 @@ package com.example.wanghui.kotlin.ui.view.flowlayout
 import android.content.Context
 import android.graphics.Point
 import android.util.AttributeSet
+import android.util.Log
+import android.view.View
 import android.view.ViewGroup
 import com.example.wanghui.kotlin.R
 
@@ -58,11 +60,16 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
         var tp  = t
         var rig : Int
         var botm : Int
+        var lineEnough : Boolean = false
         var resentLinePoints : MutableList<Point> = ArrayList()
+        var lineViews : MutableList<View> = ArrayList()
         for(i in 0..childCount-1){
             getChildAt(i).apply {
+                var totalPadding = 0
                 var tempLeft = lt + measuredWidth
                 if (tempLeft > r){
+                    lineEnough = true
+                    totalPadding = r - lt
                     lt = l
                     linePoints.clear()
                     linePoints.addAll(resentLinePoints)
@@ -81,8 +88,36 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
                 }
                 botm = tp + measuredHeight
                 resentLinePoints.add(Point(rig, botm))
-                layout(lt, tp, rig, botm)
+
+                Log.d("w", "wh-----$lineEnough")
+                if (lineEnough){
+                    layoutLine(lineViews, totalPadding, orientation)
+                    lineViews.clear()
+                    lineEnough = false
+                }
+
+                left = lt
+                right = rig
+                top = tp
+                bottom = botm
+                lineViews.add(this)
                 lt = rig
+            }
+        }
+    }
+
+    /**
+     * children layout
+     */
+    private fun layoutLine(lineViews: MutableList<View>, totalPadding: Int, orientation: Int) {
+        var itemPadding = totalPadding/(lineViews.size-1)
+        for (i in 0..lineViews.size -1){
+            val view = lineViews[i]
+            when(orientation){
+                HORIZONTAL ->{
+                    Log.d("tag", "wh------$view")
+                    view.layout(view.left + itemPadding * i, view.top, view.right + itemPadding * i, view.bottom)
+                }
             }
         }
     }
