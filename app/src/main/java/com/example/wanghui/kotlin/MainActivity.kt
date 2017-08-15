@@ -13,6 +13,7 @@ import android.widget.BaseAdapter
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.example.wanghui.kotlin.test.TestAssetActivity
+import com.example.wanghui.kotlin.ui.view.flowlayout.TestFlowLayoutActivity
 import com.example.wanghui.kotlin.ui.view.group.smsCode
 import com.example.wanghui.kotlin.ui.view.line.TestLineViewActivity
 import com.example.wanghui.kotlin.ui.view.roundview.TestRoundViewActivity
@@ -38,6 +39,7 @@ class MainActivity : AppCompatActivity(){
         items.add(Item("line", TestLineViewActivity::class.java))
         items.add(Item("test", TestAssetActivity::class.java))
         items.add(Item("roundView", TestRoundViewActivity::class.java))
+        items.add(Item("flowLayout", TestFlowLayoutActivity::class.java))
     }
 
     /**

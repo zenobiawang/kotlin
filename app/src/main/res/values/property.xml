@@ -25,7 +25,7 @@
         </attr>
     </declare-styleable>
 
-    <declare-styleable name="FollowLayout">
+    <declare-styleable name="FlowLayout">
         <attr name="item_padding" format="dimension"/>
         <attr name="orientation" format="integer">
             <enum name="vertical" value="-1"/>
