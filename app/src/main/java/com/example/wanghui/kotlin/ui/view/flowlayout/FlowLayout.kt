@@ -58,29 +58,29 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
         var tp  = t
         var rig : Int
         var botm : Int
-        var correntLinePoints : MutableList<Point> = ArrayList()
+        var resentLinePoints : MutableList<Point> = ArrayList()
         for(i in 0..childCount-1){
             getChildAt(i).apply {
                 var tempLeft = lt + measuredWidth
                 if (tempLeft > r){
                     lt = l
                     linePoints.clear()
-                    linePoints.addAll(correntLinePoints)
-                    correntLinePoints.clear()
+                    linePoints.addAll(resentLinePoints)
+                    resentLinePoints.clear()
                 }
                 rig = lt + measuredWidth
 
                 for (i in 0..linePoints.size-1){
                     val point = linePoints[i]
                     if (point.x < lt ||
-                            (i > 0 && point.x > rig && linePoints[i -1].x > rig)){
+                            (i > 0 && point.x > rig && linePoints[i -1].x >= rig)){
                         continue
                     }else{
                         tp = maxOf(tp, point.y)
                     }
                 }
                 botm = tp + measuredHeight
-                correntLinePoints.add(Point(rig, botm))
+                resentLinePoints.add(Point(rig, botm))
                 layout(lt, tp, rig, botm)
                 lt = rig
             }
