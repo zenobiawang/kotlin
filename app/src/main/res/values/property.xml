@@ -27,10 +27,13 @@
 
     <declare-styleable name="FlowLayout">
         <attr name="item_padding" format="dimension"/>
+        <attr name="item_padding_horizontal" format="dimension"/>
+        <attr name="item_padding_vertical" format="dimension"/>
         <attr name="orientation" format="integer">
             <enum name="vertical" value="-1"/>
             <enum name="horizontal" value="-2"/>
         </attr>
+        <attr name="item_padding_fixable" format="boolean"/>
     </declare-styleable>
     
 </resources>

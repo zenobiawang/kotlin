@@ -10,7 +10,11 @@
         android:id="@+id/flowLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/red">
+        android:background="@color/red"
+        app:item_padding_horizontal="1dp"
+        app:item_padding_vertical="10dp"
+        app:item_padding_fixable="true"
+        app:orientation="horizontal">
 
     </com.example.wanghui.kotlin.ui.view.flowlayout.FlowLayout>
 

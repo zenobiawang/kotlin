@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import com.example.wanghui.kotlin.R
+import kotlinx.android.synthetic.main.activity_test_round_view.view.*
 
 /**
  * Created by wanghui on 2017/8/14.
@@ -18,7 +19,12 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
     val VERTICAL = -1     //从上往下布局
     val HORIZONTAL = -2   //从左往右布局
     var orientation  = 0
-    var itemPadding = 0
+    var itemPaddingHorizontalAttr = 0
+    var itemPaddingVerticalAttr = 0
+    var itemPaddingVetical = 0
+    var itemPaddingHorizontal = 0
+
+    var itemPaddingFixable = false
     var linePoints : MutableList<Point> = ArrayList()
 
 
@@ -29,8 +35,11 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
     init {
         context.obtainStyledAttributes(attrs, R.styleable.FlowLayout).apply {
             orientation = getInt(R.styleable.FlowLayout_orientation, HORIZONTAL)
-            itemPadding = getDimension(R.styleable.FlowLayout_item_padding, 0f).toInt()
-        }
+            val itemPadding = getDimension(R.styleable.FlowLayout_item_padding, 0f)
+            itemPaddingHorizontalAttr = getDimension(R.styleable.FlowLayout_item_padding_horizontal, itemPadding).toInt()
+            itemPaddingVerticalAttr = getDimension(R.styleable.FlowLayout_item_padding_vertical, itemPadding).toInt()
+            itemPaddingFixable = getBoolean(R.styleable.FlowLayout_item_padding_fixable, false)
+        }.recycle()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -46,6 +55,21 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
 //        }
     }
 
+    /**
+     * 根据配置是否是自适应间距来设置padding
+     */
+    fun initPadding(){
+        if (itemPaddingFixable && orientation == VERTICAL){
+            itemPaddingVetical = 0
+            itemPaddingHorizontal = itemPaddingHorizontalAttr
+        }else if (itemPaddingFixable && orientation == HORIZONTAL){
+            itemPaddingHorizontal = 0
+            itemPaddingVetical = itemPaddingVerticalAttr
+        }else{
+            itemPaddingHorizontal = itemPaddingHorizontalAttr
+            itemPaddingVetical = itemPaddingVerticalAttr
+        }
+    }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         linePoints.clear()
@@ -56,8 +80,9 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
     }
 
     private fun layoutHorizontal(l: Int, t: Int, r: Int, b: Int) {
-        var lt  = l
-        var tp  = t
+        initPadding()
+        var lt  = l + itemPaddingHorizontal
+        var tp  = t + itemPaddingVetical
         var rig : Int
         var botm : Int
         var lineEnough : Boolean = false
@@ -70,7 +95,7 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
                 if (tempLeft > r){
                     lineEnough = true
                     totalPadding = r - lt
-                    lt = l
+                    lt = l + itemPaddingHorizontal
                     linePoints.clear()
                     linePoints.addAll(resentLinePoints)
                     resentLinePoints.clear()
@@ -83,15 +108,20 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
                             (i > 0 && point.x > rig && linePoints[i -1].x >= rig)){
                         continue
                     }else{
-                        tp = maxOf(tp, point.y)
+                        tp = maxOf(tp, point.y) + itemPaddingVetical
                     }
                 }
                 botm = tp + measuredHeight
                 resentLinePoints.add(Point(rig, botm))
 
-                Log.d("w", "wh-----$lineEnough")
                 if (lineEnough){
-                    layoutLine(lineViews, totalPadding, orientation)
+                    itemPaddingFixable.apply {
+                        if (this){
+                            layoutLine(lineViews, totalPadding, orientation)
+                        }else{
+                            layoutLine(lineViews, 0, orientation)
+                        }
+                    }
                     lineViews.clear()
                     lineEnough = false
                 }
@@ -101,28 +131,29 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
                 top = tp
                 bottom = botm
                 lineViews.add(this)
-                lt = rig
+                lt = rig + itemPaddingHorizontal
             }
         }
     }
 
     /**
+     * 自适应layout
      * children layout
      */
     private fun layoutLine(lineViews: MutableList<View>, totalPadding: Int, orientation: Int) {
-        var itemPadding = totalPadding/(lineViews.size-1)
+        var itemPaddingChangeable = totalPadding/(lineViews.size-1)
         for (i in 0..lineViews.size -1){
             val view = lineViews[i]
             when(orientation){
                 HORIZONTAL ->{
-                    Log.d("tag", "wh------$view")
-                    view.layout(view.left + itemPadding * i, view.top, view.right + itemPadding * i, view.bottom)
+                    view.layout(view.left + itemPaddingChangeable * i, view.top, view.right + itemPaddingChangeable * i, view.bottom)
                 }
             }
         }
     }
 
     private fun layoutVertical(l: Int, t: Int, r: Int, b: Int) {
+
     }
 
 
