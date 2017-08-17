@@ -57,6 +57,7 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
         ViewConfiguration.get(context).run {
             touchSlop = this.scaledPagingTouchSlop
         }
+        isClickable = true
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -242,7 +243,7 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
             }
 
         }
-        return true
+        return super.onTouchEvent(event)
     }
 
 
