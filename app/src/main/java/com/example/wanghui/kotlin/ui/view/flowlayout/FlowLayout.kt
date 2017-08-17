@@ -3,8 +3,10 @@ package com.example.wanghui.kotlin.ui.view.flowlayout
 import android.content.Context
 import android.graphics.Point
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.widget.Scroller
 import com.example.wanghui.kotlin.R
@@ -27,7 +29,16 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
 
     var itemPaddingFixable = false
     var linePoints : MutableList<Point> = ArrayList()
+
+
     val scroller : Scroller  //可以滑动查看
+    var touchSlop = 0
+    var currentX = 0f
+    var currentY = 0f
+    var rightBorder = 0
+    var bottomBorder = 0
+    var leftBorder = 0
+    var topBorder = 0
 
     constructor(context: Context):this(context, null, 0, 0)
     constructor(context: Context, attrs: AttributeSet?):this(context, attrs, 0, 0)
@@ -43,6 +54,9 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
         }.recycle()
 
         scroller = Scroller(context)
+        ViewConfiguration.get(context).run {
+            touchSlop = this.scaledPagingTouchSlop
+        }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -84,6 +98,8 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
 
     private fun layoutHorizontal(l: Int, t: Int, r: Int, b: Int) {
         initPadding()
+        leftBorder = l
+        topBorder = t
         var lt  = l + paddingLeft
         var tp  = t
         var rig : Int
@@ -133,6 +149,15 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
                 bottom = botm
                 lineViews.add(this)
                 lt = rig + divideHorizontal
+
+                if (this@FlowLayout.getChildAt(childCount -1) == this){  //最后一个，但是不满足满一行的规则
+                    if (itemPaddingFixable){
+                        layoutLine(lineViews, totalDivide, orientation)
+                    }else{
+                        layoutLine(lineViews, 0, orientation)
+                    }
+                    lineViews.clear()
+                }
             }
         }
     }
@@ -142,12 +167,17 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
      * children layout
      */
     private fun layoutLine(lineViews: MutableList<View>, totalDivide: Int, orientation: Int) {
-        var itemPaddingChangeable = totalDivide/(lineViews.size-1)
+        var itemPaddingChangeable = 0
+        if (lineViews.size -1 != 0){
+            itemPaddingChangeable = totalDivide/(lineViews.size-1)
+        }
+
         for (i in 0..lineViews.size -1){
             val view = lineViews[i]
             when(orientation){
                 HORIZONTAL ->{
                     view.layout(view.left + itemPaddingChangeable * i, view.top, view.right + itemPaddingChangeable * i, view.bottom)
+                    bottomBorder = Math.max(view.bottom, bottomBorder)
                 }
             }
         }
@@ -158,12 +188,61 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
     }
 
 
+    /**
+     * 实现连贯滑动
+     */
     override fun computeScroll() {
         super.computeScroll()
+        if (scroller.computeScrollOffset()){
+            scrollTo(scroller.currX, scroller.currY)
+            postInvalidate()
+        }
     }
 
-    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+        when(ev.action){
+            MotionEvent.ACTION_DOWN ->{
+                currentX = ev.rawX
+                currentY = ev.rawY
+            }
+            MotionEvent.ACTION_MOVE ->{
+                Log.d("tag", "wh----" + ev.rawY)
+                if (orientation == VERTICAL && Math.abs(currentX - ev.rawX) > touchSlop){
+                    currentX = ev.rawX
+                    return true
+                }else if (orientation == HORIZONTAL && Math.abs(currentY - ev.rawY) > touchSlop){
+                    currentY = ev.rawY
+                    return true
+                }
+            }
+            MotionEvent.ACTION_UP ->{
+                return false
+            }
+            MotionEvent.ACTION_CANCEL ->{
+                return false
+            }
+        }
         return super.onInterceptTouchEvent(ev)
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        when(event.action){
+            MotionEvent.ACTION_MOVE -> {
+                if (orientation == HORIZONTAL){
+                    if (scrollY + (currentY - event.rawY) < topBorder){
+                        scrollTo(0, topBorder)
+                        return true
+                    }else if(scrollY + measuredHeight + currentY - event.rawY > bottomBorder){
+                        scrollTo(0, bottomBorder - measuredHeight)
+                        return true
+                    }
+                    scrollBy(0, (currentY - event.rawY).toInt())
+                    currentY = event.rawY
+                }
+            }
+
+        }
+        return true
     }
 
 

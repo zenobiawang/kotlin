@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:background="@color/red"
         app:item_divide_horizontal="1dp"
-        app:item_divide_vertical="10dp"
+        app:item_divide_vertical="1dp"
         app:item_padding_fixable="false"
         app:orientation="horizontal"
         android:paddingLeft="5dp">
