@@ -109,7 +109,7 @@ abstract class PullToRefreshLayout<T : View> : ViewGroup{
                 var currentY = event!!.rawY
                 var offset = currentY - lastY
                 lastY = currentY.toInt()
-                Log.d(TAG, "wh---- " + scrollY + "---" + offset)
+                Log.d(TAG, "wh---- $scrollY---$offset")
                 if (offset > 0 && -maxHeightForHeaderAndFooter < scrollY){
                     scrollBy(0, - offset.toInt())
                 }else if (offset < 0 && scrollY < maxHeightForHeaderAndFooter){

@@ -3,30 +3,31 @@ package com.example.wanghui.kotlin.ui.view.flowlayout
 import android.content.Context
 import android.graphics.Point
 import android.util.AttributeSet
-import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Scroller
 import com.example.wanghui.kotlin.R
-import kotlinx.android.synthetic.main.activity_test_round_view.view.*
 
 /**
  * Created by wanghui on 2017/8/14.
  * 流布局
  * 从左往右依次摆放、从上往下依次摆放
  * 自定义间距、自适应间距
+ * 滚动查看
  */
 class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : ViewGroup(context, attrs, defStyleAttr, defStyleRes) {
     val VERTICAL = -1     //从上往下布局
     val HORIZONTAL = -2   //从左往右布局
     var orientation  = 0
-    var itemPaddingHorizontalAttr = 0
-    var itemPaddingVerticalAttr = 0
-    var itemPaddingVetical = 0
-    var itemPaddingHorizontal = 0
+    var itemDivideHorizontalAttr = 0
+    var itemDivideVerticalAttr = 0
+    var divideVertical = 0
+    var divideHorizontal = 0
 
     var itemPaddingFixable = false
     var linePoints : MutableList<Point> = ArrayList()
-
+    val scroller : Scroller  //可以滑动查看
 
     constructor(context: Context):this(context, null, 0, 0)
     constructor(context: Context, attrs: AttributeSet?):this(context, attrs, 0, 0)
@@ -36,10 +37,12 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
         context.obtainStyledAttributes(attrs, R.styleable.FlowLayout).apply {
             orientation = getInt(R.styleable.FlowLayout_orientation, HORIZONTAL)
             val itemPadding = getDimension(R.styleable.FlowLayout_item_padding, 0f)
-            itemPaddingHorizontalAttr = getDimension(R.styleable.FlowLayout_item_padding_horizontal, itemPadding).toInt()
-            itemPaddingVerticalAttr = getDimension(R.styleable.FlowLayout_item_padding_vertical, itemPadding).toInt()
+            itemDivideHorizontalAttr = getDimension(R.styleable.FlowLayout_item_divide_horizontal, itemPadding).toInt()
+            itemDivideVerticalAttr = getDimension(R.styleable.FlowLayout_item_divide_vertical, itemPadding).toInt()
             itemPaddingFixable = getBoolean(R.styleable.FlowLayout_item_padding_fixable, false)
         }.recycle()
+
+        scroller = Scroller(context)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -60,14 +63,14 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
      */
     fun initPadding(){
         if (itemPaddingFixable && orientation == VERTICAL){
-            itemPaddingVetical = 0
-            itemPaddingHorizontal = itemPaddingHorizontalAttr
+            divideVertical = 0
+            divideHorizontal = itemDivideHorizontalAttr
         }else if (itemPaddingFixable && orientation == HORIZONTAL){
-            itemPaddingHorizontal = 0
-            itemPaddingVetical = itemPaddingVerticalAttr
+            divideHorizontal = 0
+            divideVertical = itemDivideVerticalAttr
         }else{
-            itemPaddingHorizontal = itemPaddingHorizontalAttr
-            itemPaddingVetical = itemPaddingVerticalAttr
+            divideHorizontal = itemDivideHorizontalAttr
+            divideVertical = itemDivideVerticalAttr
         }
     }
 
@@ -81,8 +84,8 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
 
     private fun layoutHorizontal(l: Int, t: Int, r: Int, b: Int) {
         initPadding()
-        var lt  = l + itemPaddingHorizontal
-        var tp  = t + itemPaddingVetical
+        var lt  = l + paddingLeft
+        var tp  = t
         var rig : Int
         var botm : Int
         var lineEnough : Boolean = false
@@ -90,12 +93,12 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
         var lineViews : MutableList<View> = ArrayList()
         for(i in 0..childCount-1){
             getChildAt(i).apply {
-                var totalPadding = 0
-                var tempLeft = lt + measuredWidth
+                var totalDivide = 0
+                var tempLeft = lt + measuredWidth + paddingRight
                 if (tempLeft > r){
                     lineEnough = true
-                    totalPadding = r - lt
-                    lt = l + itemPaddingHorizontal
+                    totalDivide = r - lt
+                    lt = l + this@FlowLayout.paddingLeft
                     linePoints.clear()
                     linePoints.addAll(resentLinePoints)
                     resentLinePoints.clear()
@@ -108,19 +111,17 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
                             (i > 0 && point.x > rig && linePoints[i -1].x >= rig)){
                         continue
                     }else{
-                        tp = maxOf(tp, point.y) + itemPaddingVetical
+                        tp = maxOf(tp, point.y) + divideVertical
                     }
                 }
                 botm = tp + measuredHeight
                 resentLinePoints.add(Point(rig, botm))
 
                 if (lineEnough){
-                    itemPaddingFixable.apply {
-                        if (this){
-                            layoutLine(lineViews, totalPadding, orientation)
-                        }else{
-                            layoutLine(lineViews, 0, orientation)
-                        }
+                    if (itemPaddingFixable){
+                        layoutLine(lineViews, totalDivide, orientation)
+                    }else{
+                        layoutLine(lineViews, 0, orientation)
                     }
                     lineViews.clear()
                     lineEnough = false
@@ -131,7 +132,7 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
                 top = tp
                 bottom = botm
                 lineViews.add(this)
-                lt = rig + itemPaddingHorizontal
+                lt = rig + divideHorizontal
             }
         }
     }
@@ -140,8 +141,8 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
      * 自适应layout
      * children layout
      */
-    private fun layoutLine(lineViews: MutableList<View>, totalPadding: Int, orientation: Int) {
-        var itemPaddingChangeable = totalPadding/(lineViews.size-1)
+    private fun layoutLine(lineViews: MutableList<View>, totalDivide: Int, orientation: Int) {
+        var itemPaddingChangeable = totalDivide/(lineViews.size-1)
         for (i in 0..lineViews.size -1){
             val view = lineViews[i]
             when(orientation){
@@ -156,6 +157,14 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
 
     }
 
+
+    override fun computeScroll() {
+        super.computeScroll()
+    }
+
+    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+        return super.onInterceptTouchEvent(ev)
+    }
 
 
 }
