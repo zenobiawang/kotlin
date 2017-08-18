@@ -14,17 +14,16 @@ class TestFlowLayoutActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test_flow_layout)
-
         setFlowContent()
     }
 
     private fun setFlowContent() {
-        (0..9).map {
+        (0..20).map {
                     TextView(this).apply {
                         text = "这是测试$it"
                         gravity = Gravity.CENTER
                         layoutParams = ViewGroup.LayoutParams(350 , 300 + it * 50)
-                        background = resources.getDrawable(R.color.white)
+                        background = resources.getDrawable(R.color.little_yellow)
                     }
                 }
                 .forEach { flowLayout.addView(it) }

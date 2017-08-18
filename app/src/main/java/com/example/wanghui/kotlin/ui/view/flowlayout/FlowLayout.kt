@@ -4,12 +4,11 @@ import android.content.Context
 import android.graphics.Point
 import android.util.AttributeSet
 import android.util.Log
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewConfiguration
-import android.view.ViewGroup
+import android.view.*
+import android.widget.ListView
 import android.widget.Scroller
 import com.example.wanghui.kotlin.R
+import com.zhy.view.flowlayout.TagFlowLayout
 
 /**
  * Created by wanghui on 2017/8/14.
@@ -35,10 +34,13 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
     var touchSlop = 0
     var currentX = 0f
     var currentY = 0f
-    var rightBorder = 0
+    var rightBorder = 0     //滑动边界
     var bottomBorder = 0
     var leftBorder = 0
     var topBorder = 0
+    var minVelocity = 0
+    var maxVelocity = 0
+    var velocityTracker : VelocityTracker? = null
 
     constructor(context: Context):this(context, null, 0, 0)
     constructor(context: Context, attrs: AttributeSet?):this(context, attrs, 0, 0)
@@ -55,7 +57,9 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
 
         scroller = Scroller(context)
         ViewConfiguration.get(context).run {
-            touchSlop = this.scaledPagingTouchSlop
+            touchSlop = scaledPagingTouchSlop
+            minVelocity = scaledMinimumFlingVelocity
+            maxVelocity = scaledMaximumFlingVelocity
         }
         isClickable = true
     }
@@ -151,7 +155,7 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
                 lineViews.add(this)
                 lt = rig + divideHorizontal
 
-                if (this@FlowLayout.getChildAt(childCount -1) == this){  //最后一个，但是不满足满一行的规则
+                if (this@FlowLayout.getChildAt(childCount -1) == this){  //最后一行
                     if (itemPaddingFixable){
                         layoutLine(lineViews, totalDivide, orientation)
                     }else{
@@ -193,7 +197,6 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
      * 实现连贯滑动
      */
     override fun computeScroll() {
-        super.computeScroll()
         if (scroller.computeScrollOffset()){
             scrollTo(scroller.currX, scroller.currY)
             postInvalidate()
@@ -207,7 +210,6 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
                 currentY = ev.rawY
             }
             MotionEvent.ACTION_MOVE ->{
-                Log.d("tag", "wh----" + ev.rawY)
                 if (orientation == VERTICAL && Math.abs(currentX - ev.rawX) > touchSlop){
                     currentX = ev.rawX
                     return true
@@ -227,6 +229,7 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        initVelocityTracker(event)
         when(event.action){
             MotionEvent.ACTION_MOVE -> {
                 if (orientation == HORIZONTAL){
@@ -241,10 +244,33 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
                     currentY = event.rawY
                 }
             }
+            MotionEvent.ACTION_UP ->{  //todo fling
+                val upVelocityTracker = velocityTracker
+                upVelocityTracker!!.computeCurrentVelocity(1000, maxVelocity.toFloat())
+                if (orientation == HORIZONTAL && Math.abs(upVelocityTracker.yVelocity) > minVelocity){
+                    scroller.fling(event.rawX.toInt(), event.rawY.toInt(), 0, -upVelocityTracker.yVelocity.toInt(),
+                            leftBorder, topBorder, rightBorder, bottomBorder)
+                }
+                releaseVelocityTracker()
+            }
 
         }
         return super.onTouchEvent(event)
     }
 
+
+    fun initVelocityTracker(event: MotionEvent){
+        if (velocityTracker == null){
+            velocityTracker = VelocityTracker.obtain()
+        }
+        velocityTracker!!.addMovement(event)
+    }
+
+    fun releaseVelocityTracker(){
+        if (velocityTracker != null){
+            velocityTracker!!.recycle()
+            velocityTracker = null
+        }
+    }
 
 }
