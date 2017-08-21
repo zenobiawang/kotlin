@@ -18,9 +18,10 @@
         <activity android:name=".Main2Activity" />
         <activity android:name=".ui.view.roundview.TestRoundViewActivity" />
         <activity android:name=".ui.view.textview.TestTextViewActivity" />
-        <activity android:name=".ui.view.line.TestLineViewActivity"></activity>
+        <activity android:name=".ui.view.line.TestLineViewActivity" />
         <activity android:name=".test.TestAssetActivity" />
-        <activity android:name=".ui.view.flowlayout.TestFlowLayoutActivity"></activity>
+        <activity android:name=".ui.view.flowlayout.TestFlowLayoutActivity" />
+        <activity android:name=".ui.view.views.TestViewsActivity"></activity>
     </application>
 
 </manifest>
