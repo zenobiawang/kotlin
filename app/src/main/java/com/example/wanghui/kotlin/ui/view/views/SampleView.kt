@@ -7,6 +7,7 @@ import android.view.View
 
 /**
  * Created by wanghui on 2017/8/22.
+ * 官方demo
  */
 class SampleView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 

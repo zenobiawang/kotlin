@@ -16,10 +16,15 @@
             android:padding="15dp"/>
         <com.example.wanghui.kotlin.ui.view.views.PorterDuffView
             android:layout_width="match_parent"
-            android:layout_height="500dp"/>
+            android:layout_height="400dp"/>
         <com.example.wanghui.kotlin.ui.view.views.SampleView
             android:layout_width="match_parent"
-            android:layout_height="500dp" />
+            android:layout_height="400dp" />
+        <com.example.wanghui.kotlin.ui.view.views.CanvasViews
+            android:layout_width="match_parent"
+            android:layout_height="100dp"/>
+
+
     </LinearLayout>
 
 </ScrollView>

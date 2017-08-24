@@ -7,5 +7,6 @@
     <color name="white">#ffffff</color>
     <color name="little_yellow">#FFFACD</color>
     <color name="flower_blue">#6495ED</color>
-
+    <color name="pink">#FFC0CB</color>
+    <color name="sky_blue">#87CEEB</color>
 </resources>

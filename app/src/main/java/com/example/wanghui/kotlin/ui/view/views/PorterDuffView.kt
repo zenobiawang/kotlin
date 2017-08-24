@@ -9,6 +9,7 @@ import com.example.wanghui.kotlin.R
 
 /**
  * Created by wanghui on 2017/8/21.
+ * 自己的demo未实现，未找出原因
  */
 class PorterDuffView(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : View(context, attrs, defStyleAttr, defStyleRes) {
     val paint = Paint()
@@ -44,12 +45,12 @@ class PorterDuffView(context: Context, attrs: AttributeSet?, defStyleAttr: Int, 
 
     init {
         paint.isAntiAlias = true
-        bitmap = Bitmap.createBitmap(150, 150, Bitmap.Config.RGB_565)
+        bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.RGB_565)
         val canvas = Canvas(bitmap)
         var paint = Paint(Paint.ANTI_ALIAS_FLAG)
         paint.color = 0xEEFFCC44.toInt()
         canvas.drawCircle(75f, 75f, 75f, paint)
-        bitmaps = Bitmap.createBitmap(150, 150, Bitmap.Config.RGB_565)
+        bitmaps = Bitmap.createBitmap(200, 200, Bitmap.Config.RGB_565)
         val canvass = Canvas(bitmap)
         paint.color = 0xEE66AAFF.toInt()
         canvass.drawRect(50f, 50f, 200f, 200f, paint)
@@ -73,6 +74,7 @@ class PorterDuffView(context: Context, attrs: AttributeSet?, defStyleAttr: Int, 
         var y = 0f
         var raw = 1
         for (i in 0..labels.size-1){
+            canvas.drawRect(x, y, (x + 200), (y + 200), paint)
             // draw the src/dst example into our offscreen bitmap
             val sc = canvas.saveLayer(x, y, x + 200, y + 200, null,
                     Canvas.MATRIX_SAVE_FLAG or
