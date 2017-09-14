@@ -15,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ScrollView;
 
 import com.example.wanghui.kotlin.Main2Activity;
 import com.example.wanghui.kotlin.MainActivity;
@@ -61,9 +62,17 @@ public class ScrollDemo extends FrameLayout {
                 break;
         }
 
+        setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.toString();
+            }
+        });
     }
 
     int a = true? 0 : 1;
+
+
 
 
 }
