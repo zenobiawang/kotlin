@@ -18,5 +18,23 @@ class TestAssetActivity : AppCompatActivity() {
         imageView.setImageBitmap(bitmap)
         val input2 = resources.assets.open("test_asset.jpg")
         imageView2.setImageBitmap(BitmapFactory.decodeStream(input2))
+
+        val test = listOf("1", "2")
+        test.filter { it.equals("1") }
+
+        test {
+            val a = 1
+            val b = 2
+            if (a > b){
+                "1"
+            }else{
+                "2"
+            }
+        }
+    }
+
+    fun test(testA: () -> String){
+        val a = 123
+        val b= testA()
     }
 }
