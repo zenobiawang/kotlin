@@ -34,7 +34,10 @@ class TestAssetActivity : AppCompatActivity() {
     }
 
     fun test(testA: () -> String){
-        val a = 123
-        val b= testA()
+        testA()
     }
+
+
+
+
 }

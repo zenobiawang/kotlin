@@ -35,5 +35,17 @@
         </attr>
         <attr name="item_padding_fixable" format="boolean"/>
     </declare-styleable>
+
+    <declare-styleable name="StateRelativeLayout">
+        <attr name="state_1" format="boolean"/>
+        <attr name="state_2" format="boolean"/>
+        <attr name="state_3" format="boolean"/>
+        <attr name="state_4" format="boolean"/>
+        <attr name="state_5" format="boolean"/>
+        <attr name="state_6" format="boolean"/>
+        <attr name="state_7" format="boolean"/>
+        <attr name="state_8" format="boolean"/>
+        <attr name="state_9" format="boolean"/>
+    </declare-styleable>
     
 </resources>

@@ -17,6 +17,7 @@ import com.example.wanghui.kotlin.ui.view.flowlayout.TestFlowLayoutActivity
 import com.example.wanghui.kotlin.ui.view.group.smsCode
 import com.example.wanghui.kotlin.ui.view.line.TestLineViewActivity
 import com.example.wanghui.kotlin.ui.view.roundview.TestRoundViewActivity
+import com.example.wanghui.kotlin.ui.view.state.StateTestActivity
 import com.example.wanghui.kotlin.ui.view.views.TestViewsActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.*
@@ -42,6 +43,7 @@ class MainActivity : AppCompatActivity(){
         items.add(Item("roundView", TestRoundViewActivity::class.java))
         items.add(Item("flowLayout", TestFlowLayoutActivity::class.java))
         items.add(Item("views", TestViewsActivity::class.java))
+        items.add(Item("states", StateTestActivity::class.java))
     }
 
     /**
