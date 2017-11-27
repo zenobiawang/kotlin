@@ -5,10 +5,8 @@ import android.graphics.Point
 import android.util.AttributeSet
 import android.util.Log
 import android.view.*
-import android.widget.ListView
 import android.widget.Scroller
 import com.example.wanghui.kotlin.R
-import com.zhy.view.flowlayout.TagFlowLayout
 
 /**
  * Created by wanghui on 2017/8/14.
@@ -18,6 +16,7 @@ import com.zhy.view.flowlayout.TagFlowLayout
  * 滚动查看
  */
 class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : ViewGroup(context, attrs, defStyleAttr, defStyleRes) {
+    private val TAG = "FlowLayout"
     val VERTICAL = -1     //从上往下布局
     val HORIZONTAL = -2   //从左往右布局
     var orientation  = 0
@@ -112,26 +111,21 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
             getChildAt(i).apply {
                 var totalDivide = 0
                 if (lt + measuredWidth + this@FlowLayout.paddingRight > r){
+                    totalDivide = r - lt
                     linePoints.clear()
                     linePoints.addAll(resentLinePoints)
-                    resentLinePoints.clear()
-                    totalDivide = r - lt
-                    layoutLine(lineViews, totalDivide, orientation)   //已经铺满一行，layout当前已经记录的view
+                    resentLinePoints = layoutLine(lineViews, totalDivide, orientation, linePoints)  //已经铺满一行，layout当前已经记录的view
                     lineViews.clear()
                     lt = l + this@FlowLayout.paddingLeft  //重置起点
                 }
 
                 left = lt
-                right = lt + measuredWidth
-                top = getChildTop(lt, right, linePoints)
-                bottom = top + measuredHeight
-                resentLinePoints.add(Point(right, bottom))
                 lineViews.add(this)
-                lt = right + divideHorizontal
+                lt = left + measuredWidth + divideHorizontal
 
                 if (i == childCount -1){  //最后一个view
                     totalDivide = r - lt
-                    layoutLine(lineViews, totalDivide, orientation)
+                    layoutLine(lineViews, totalDivide, orientation, linePoints)
                     lineViews.clear()
                 }
             }
@@ -142,15 +136,18 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
      * 获取view 的top
      */
     private fun getChildTop(lt: Int, rig: Int, linePoints: MutableList<Point>) : Int {
-        var tp = 0
+        var tp = paddingTop
         for (i in 0 until linePoints.size){
             val point = linePoints[i]
             if (point.x < lt ||
-                    (i > 0 && point.x > rig && linePoints[i -1].x >= rig)){
+                    (i > 0 && point.x > rig)){
                 continue
             }else{
-                tp = maxOf(tp, point.y) + divideVertical
+                tp = maxOf(tp, point.y)
             }
+        }
+        if (linePoints.isNotEmpty()){
+            tp += divideVertical
         }
         return tp
     }
@@ -160,21 +157,29 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
      * 自适应layout
      * children layout
      */
-    private fun layoutLine(lineViews: MutableList<View>, totalDivide: Int, orientation: Int) {
+    private fun layoutLine(lineViews: MutableList<View>, totalDivide: Int, orientation: Int, linePoints: MutableList<Point>): MutableList<Point> {
         var itemPaddingChangeable = 0
         if (itemPaddingFixable && lineViews.size -1 != 0){
             itemPaddingChangeable = totalDivide/(lineViews.size-1)
         }
 
+        var resentLinePoints : MutableList<Point> = ArrayList()
         for (i in 0 until lineViews.size){
             val view = lineViews[i]
             when(orientation){
                 HORIZONTAL ->{
-                    view.layout(view.left + itemPaddingChangeable * i, view.top, view.right + itemPaddingChangeable * i, view.bottom)
+                    view.left += itemPaddingChangeable * i
+                    view.right = view.left + view.measuredWidth
+                    view.top = getChildTop(view.left, view.right, linePoints)
+                    view.bottom = view.top + view.measuredHeight
+                    view.layout(view.left, view.top, view.right, view.bottom)
                     bottomBorder = Math.max(view.bottom, bottomBorder)
+                    resentLinePoints.add(Point(view.left, view.bottom))
+                    resentLinePoints.add(Point(view.right, view.bottom))
                 }
             }
         }
+        return resentLinePoints
     }
 
     private fun layoutVertical(l: Int, t: Int, r: Int, b: Int) {
