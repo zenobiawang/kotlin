@@ -21,26 +21,26 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
     val VERTICAL = -1     //从上往下布局
     val HORIZONTAL = -2   //从左往右布局
     var orientation  = 0
-    var itemDivideHorizontalAttr = 0
-    var itemDivideVerticalAttr = 0
-    var divideVertical = 0
-    var divideHorizontal = 0
+    private var itemDivideHorizontalAttr = 0
+    private var itemDivideVerticalAttr = 0
+    private var divideVertical = 0
+    private var divideHorizontal = 0
 
-    var itemPaddingFixable = false
-    var linePoints : MutableList<Point> = ArrayList()
+    private var itemPaddingFixable = false
+    private var linePoints : MutableList<Point> = ArrayList()   //上一行所有的点坐标
 
 
-    val scroller : Scroller  //可以滑动查看
-    var touchSlop = 0
-    var currentX = 0f
-    var currentY = 0f
-    var rightBorder = 0     //滑动边界
-    var bottomBorder = 0
-    var leftBorder = 0
-    var topBorder = 0
-    var minVelocity = 0
-    var maxVelocity = 0
-    var velocityTracker : VelocityTracker? = null
+    private val scroller : Scroller  //可以滑动查看
+    private var touchSlop = 0
+    private var currentX = 0f
+    private var currentY = 0f
+    private var rightBorder = 0     //滑动边界
+    private var bottomBorder = 0
+    private var leftBorder = 0
+    private var topBorder = 0
+    private var minVelocity = 0
+    private var maxVelocity = 0
+    private var velocityTracker : VelocityTracker? = null
 
     constructor(context: Context):this(context, null, 0, 0)
     constructor(context: Context, attrs: AttributeSet?):this(context, attrs, 0, 0)
@@ -80,7 +80,7 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
     /**
      * 根据配置是否是自适应间距来设置padding
      */
-    fun initPadding(){
+    private fun initPadding(){
         if (itemPaddingFixable && orientation == VERTICAL){
             divideVertical = 0
             divideHorizontal = itemDivideHorizontalAttr
@@ -106,61 +106,32 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
         leftBorder = l
         topBorder = t
         var lt  = l + paddingLeft
-        var tp  = t
-        var rig : Int
-        var botm : Int
-        var lineEnough : Boolean = false
         var resentLinePoints : MutableList<Point> = ArrayList()
         var lineViews : MutableList<View> = ArrayList()
-        for(i in 0..childCount-1){
+        for(i in 0 until childCount){
             getChildAt(i).apply {
                 var totalDivide = 0
-                var tempLeft = lt + measuredWidth + paddingRight
-                if (tempLeft > r){
-                    lineEnough = true
-                    totalDivide = r - lt
-                    lt = l + this@FlowLayout.paddingLeft
+                if (lt + measuredWidth + this@FlowLayout.paddingRight > r){
                     linePoints.clear()
                     linePoints.addAll(resentLinePoints)
                     resentLinePoints.clear()
-                }
-                rig = lt + measuredWidth
-
-                for (i in 0..linePoints.size-1){
-                    val point = linePoints[i]
-                    if (point.x < lt ||
-                            (i > 0 && point.x > rig && linePoints[i -1].x >= rig)){
-                        continue
-                    }else{
-                        tp = maxOf(tp, point.y) + divideVertical
-                    }
-                }
-                botm = tp + measuredHeight
-                resentLinePoints.add(Point(rig, botm))
-
-                if (lineEnough){
-                    if (itemPaddingFixable){
-                        layoutLine(lineViews, totalDivide, orientation)
-                    }else{
-                        layoutLine(lineViews, 0, orientation)
-                    }
+                    totalDivide = r - lt
+                    layoutLine(lineViews, totalDivide, orientation)   //已经铺满一行，layout当前已经记录的view
                     lineViews.clear()
-                    lineEnough = false
+                    lt = l + this@FlowLayout.paddingLeft  //重置起点
                 }
 
                 left = lt
-                right = rig
-                top = tp
-                bottom = botm
+                right = lt + measuredWidth
+                top = getChildTop(lt, right, linePoints)
+                bottom = top + measuredHeight
+                resentLinePoints.add(Point(right, bottom))
                 lineViews.add(this)
-                lt = rig + divideHorizontal
+                lt = right + divideHorizontal
 
-                if (this@FlowLayout.getChildAt(childCount -1) == this){  //最后一行
-                    if (itemPaddingFixable){
-                        layoutLine(lineViews, totalDivide, orientation)
-                    }else{
-                        layoutLine(lineViews, 0, orientation)
-                    }
+                if (i == childCount -1){  //最后一个view
+                    totalDivide = r - lt
+                    layoutLine(lineViews, totalDivide, orientation)
                     lineViews.clear()
                 }
             }
@@ -168,16 +139,34 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
     }
 
     /**
+     * 获取view 的top
+     */
+    private fun getChildTop(lt: Int, rig: Int, linePoints: MutableList<Point>) : Int {
+        var tp = 0
+        for (i in 0 until linePoints.size){
+            val point = linePoints[i]
+            if (point.x < lt ||
+                    (i > 0 && point.x > rig && linePoints[i -1].x >= rig)){
+                continue
+            }else{
+                tp = maxOf(tp, point.y) + divideVertical
+            }
+        }
+        return tp
+    }
+
+
+    /**
      * 自适应layout
      * children layout
      */
     private fun layoutLine(lineViews: MutableList<View>, totalDivide: Int, orientation: Int) {
         var itemPaddingChangeable = 0
-        if (lineViews.size -1 != 0){
+        if (itemPaddingFixable && lineViews.size -1 != 0){
             itemPaddingChangeable = totalDivide/(lineViews.size-1)
         }
 
-        for (i in 0..lineViews.size -1){
+        for (i in 0 until lineViews.size){
             val view = lineViews[i]
             when(orientation){
                 HORIZONTAL ->{
@@ -244,15 +233,15 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
                     currentY = event.rawY
                 }
             }
-            MotionEvent.ACTION_UP ->{  //todo fling
-                val upVelocityTracker = velocityTracker
-                upVelocityTracker!!.computeCurrentVelocity(1000, maxVelocity.toFloat())
-                if (orientation == HORIZONTAL && Math.abs(upVelocityTracker.yVelocity) > minVelocity){
-                    scroller.fling(event.rawX.toInt(), event.rawY.toInt(), 0, -upVelocityTracker.yVelocity.toInt(),
-                            leftBorder, topBorder, rightBorder, bottomBorder)
-                }
-                releaseVelocityTracker()
-            }
+//            MotionEvent.ACTION_UP ->{  //todo fling
+//                val upVelocityTracker = velocityTracker
+//                upVelocityTracker!!.computeCurrentVelocity(1000, maxVelocity.toFloat())
+//                if (orientation == HORIZONTAL && Math.abs(upVelocityTracker.yVelocity) > minVelocity){
+//                    scroller.fling(event.rawX.toInt(), event.rawY.toInt(), 0, -upVelocityTracker.yVelocity.toInt(),
+//                            leftBorder, topBorder, rightBorder, bottomBorder)
+//                }
+//                releaseVelocityTracker()
+//            }
 
         }
         return super.onTouchEvent(event)
