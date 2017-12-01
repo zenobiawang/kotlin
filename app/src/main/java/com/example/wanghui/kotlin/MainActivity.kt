@@ -13,6 +13,7 @@ import android.widget.BaseAdapter
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.example.wanghui.kotlin.test.TestAssetActivity
+import com.example.wanghui.kotlin.ui.layoutmanager.LayoutManager1Activity
 import com.example.wanghui.kotlin.ui.view.flowlayout.TestFlowLayoutActivity
 import com.example.wanghui.kotlin.ui.view.group.smsCode
 import com.example.wanghui.kotlin.ui.view.line.TestLineViewActivity
@@ -44,6 +45,7 @@ class MainActivity : AppCompatActivity(){
         items.add(Item("flowLayout", TestFlowLayoutActivity::class.java))
         items.add(Item("views", TestViewsActivity::class.java))
         items.add(Item("states", StateTestActivity::class.java))
+        items.add(Item("layoutManager", LayoutManager1Activity::class.java))
     }
 
     /**

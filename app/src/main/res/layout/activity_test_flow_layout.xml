@@ -9,9 +9,10 @@
     <com.example.wanghui.kotlin.ui.view.flowlayout.FlowLayout
         android:id="@+id/flowLayout"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="wrap_content"
         app:item_divide_vertical="5dp"
-        app:item_padding_fixable="true"
+        app:item_divide_horizontal="5dp"
+        app:item_padding_fixable="false"
         app:orientation="horizontal"
         android:background="@color/white">
 

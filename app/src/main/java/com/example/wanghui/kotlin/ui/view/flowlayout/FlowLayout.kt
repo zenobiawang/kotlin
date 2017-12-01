@@ -5,6 +5,7 @@ import android.graphics.Point
 import android.util.AttributeSet
 import android.util.Log
 import android.view.*
+import android.widget.OverScroller
 import android.widget.Scroller
 import com.example.wanghui.kotlin.R
 
@@ -29,7 +30,7 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
     private var linePoints : MutableList<Point> = ArrayList()   //上一行所有的点坐标
 
 
-    private val scroller : Scroller  //可以滑动查看
+    private val scroller : OverScroller  //可以滑动查看
     private var touchSlop = 0
     private var currentX = 0f
     private var currentY = 0f
@@ -54,7 +55,7 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
             itemPaddingFixable = getBoolean(R.styleable.FlowLayout_item_padding_fixable, false)
         }.recycle()
 
-        scroller = Scroller(context)
+        scroller = OverScroller(context)
         ViewConfiguration.get(context).run {
             touchSlop = scaledPagingTouchSlop
             minVelocity = scaledMinimumFlingVelocity
@@ -109,12 +110,13 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
         var lineViews : MutableList<View> = ArrayList()
         for(i in 0 until childCount){
             getChildAt(i).apply {
-                var totalDivide = 0
+                var totalDivide: Int
                 if (lt + measuredWidth + this@FlowLayout.paddingRight > r){
                     totalDivide = r - lt
+                    resentLinePoints = layoutLine(lineViews, totalDivide, orientation, linePoints)  //已经铺满一行，layout当前已经记录的view
                     linePoints.clear()
                     linePoints.addAll(resentLinePoints)
-                    resentLinePoints = layoutLine(lineViews, totalDivide, orientation, linePoints)  //已经铺满一行，layout当前已经记录的view
+                    Log.d(TAG, "debug----" + resentLinePoints.toString() + "---$i")
                     lineViews.clear()
                     lt = l + this@FlowLayout.paddingLeft  //重置起点
                 }
@@ -223,8 +225,11 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        initVelocityTracker(event)
         when(event.action){
+            MotionEvent.ACTION_DOWN ->{
+                initVelocityTracker(event)
+                currentY = event.rawY
+            }
             MotionEvent.ACTION_MOVE -> {
                 if (orientation == HORIZONTAL){
                     if (scrollY + (currentY - event.rawY) < topBorder){
@@ -237,30 +242,36 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
                     scrollBy(0, (currentY - event.rawY).toInt())
                     currentY = event.rawY
                 }
+                velocityTracker?.addMovement(event)
+                velocityTracker?.computeCurrentVelocity(1000, maxVelocity.toFloat())
             }
-//            MotionEvent.ACTION_UP ->{  //todo fling
-//                val upVelocityTracker = velocityTracker
-//                upVelocityTracker!!.computeCurrentVelocity(1000, maxVelocity.toFloat())
-//                if (orientation == HORIZONTAL && Math.abs(upVelocityTracker.yVelocity) > minVelocity){
-//                    scroller.fling(event.rawX.toInt(), event.rawY.toInt(), 0, -upVelocityTracker.yVelocity.toInt(),
-//                            leftBorder, topBorder, rightBorder, bottomBorder)
-//                }
-//                releaseVelocityTracker()
-//            }
+            MotionEvent.ACTION_UP ->{  //todo fling
+                if (velocityTracker != null){
+                    if (orientation == HORIZONTAL && Math.abs(velocityTracker!!.yVelocity) > minVelocity){
+                        scroller.fling(scrollX, scrollY, 0, -velocityTracker!!.yVelocity.toInt(),
+                                leftBorder, rightBorder, topBorder, bottomBorder - measuredHeight, 0, 50)
+                    }
+                    releaseVelocityTracker()
+                }
+            }
+            MotionEvent.ACTION_CANCEL ->{
+                releaseVelocityTracker()
+            }
 
         }
         return super.onTouchEvent(event)
     }
 
 
-    fun initVelocityTracker(event: MotionEvent){
+    private fun initVelocityTracker(event: MotionEvent){
         if (velocityTracker == null){
             velocityTracker = VelocityTracker.obtain()
         }
+        velocityTracker!!.clear()
         velocityTracker!!.addMovement(event)
     }
 
-    fun releaseVelocityTracker(){
+    private fun releaseVelocityTracker(){
         if (velocityTracker != null){
             velocityTracker!!.recycle()
             velocityTracker = null
