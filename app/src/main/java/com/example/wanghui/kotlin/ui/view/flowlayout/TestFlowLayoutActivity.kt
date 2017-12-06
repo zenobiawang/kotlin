@@ -2,12 +2,14 @@ package com.example.wanghui.kotlin.ui.view.flowlayout
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.TextView
 
 import com.example.wanghui.kotlin.R
 import kotlinx.android.synthetic.main.activity_test_flow_layout.*
+import org.jetbrains.anko.backgroundColor
 
 class TestFlowLayoutActivity : AppCompatActivity() {
 
@@ -27,7 +29,7 @@ class TestFlowLayoutActivity : AppCompatActivity() {
                         }else{
                             ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 300 + it * 50)
                         }
-                        background = resources.getDrawable(R.color.little_yellow)
+                        backgroundColor = ContextCompat.getColor(context, R.color.little_yellow)
                     }
                 }
                 .forEach { flowLayout.addView(it) }

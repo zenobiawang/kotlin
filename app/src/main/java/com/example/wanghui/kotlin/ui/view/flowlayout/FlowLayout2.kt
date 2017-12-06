@@ -6,12 +6,11 @@ import android.util.Log
 import android.view.*
 import android.widget.OverScroller
 import com.example.wanghui.kotlin.R
-import org.jetbrains.anko.padding
 
 /**
- * Created by wanghui on 2017/11/29.
+ * Created by wanghui on 2017/12/6.
  */
-class FlowLayoutNew(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : ViewGroup(context, attrs, defStyleAttr, defStyleRes) {
+class FlowLayout2(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : ViewGroup(context, attrs, defStyleAttr) {
     private val TAG = "FlowLayoutNew"
     private var itemDivideHorizontalAttr = 0
     private var itemDivideVerticalAttr = 0
@@ -33,9 +32,8 @@ class FlowLayoutNew(context: Context, attrs: AttributeSet?, defStyleAttr: Int, d
     private var maxVelocity = 0
     private var velocityTracker : VelocityTracker? = null
 
-    constructor(context: Context):this(context, null, 0, 0)
-    constructor(context: Context, attrs: AttributeSet?):this(context, attrs, 0, 0)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int): this(context, attrs, defStyleAttr, 0)
+    constructor(context: Context):this(context, null, 0)
+    constructor(context: Context, attrs: AttributeSet?):this(context, attrs, 0)
 
 
     init {
@@ -56,13 +54,13 @@ class FlowLayoutNew(context: Context, attrs: AttributeSet?, defStyleAttr: Int, d
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {  //todo measure wrap_content
-        val widthMode = MeasureSpec.getMode(widthMeasureSpec)
-        val heightMode = MeasureSpec.getMode(heightMeasureSpec)
-        var widthSize = MeasureSpec.getSize(widthMeasureSpec)
-        var heightSize = MeasureSpec.getSize(heightMeasureSpec)
+        val widthMode = View.MeasureSpec.getMode(widthMeasureSpec)
+        val heightMode = View.MeasureSpec.getMode(heightMeasureSpec)
+        var widthSize = View.MeasureSpec.getSize(widthMeasureSpec)
+        var heightSize = View.MeasureSpec.getSize(heightMeasureSpec)
 
         childWidth = (widthSize - divideHorizontal*(columns-1))/columns
-        measureChildren(MeasureSpec.makeMeasureSpec(childWidth, widthMode), heightMeasureSpec)
+        measureChildren(View.MeasureSpec.makeMeasureSpec(childWidth, widthMode), heightMeasureSpec)
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
 
@@ -156,13 +154,14 @@ class FlowLayoutNew(context: Context, attrs: AttributeSet?, defStyleAttr: Int, d
                 scrollBy(0, (currentY - event.rawY).toInt())
                 currentY = event.rawY
                 velocityTracker?.addMovement(event)
-                velocityTracker?.computeCurrentVelocity(1000, maxVelocity.toFloat())
             }
             MotionEvent.ACTION_UP ->{  //todo fling
                 if (velocityTracker != null){
+                    velocityTracker!!.computeCurrentVelocity(1000, maxVelocity.toFloat())
                     if (Math.abs(velocityTracker!!.yVelocity) > minVelocity){
                         scroller.fling(scrollX, scrollY, 0, -velocityTracker!!.yVelocity.toInt(),
                                 leftBorder, rightBorder, topBorder, bottomBorder - measuredHeight, 0, 50)
+                        postInvalidate()
                     }
                     releaseVelocityTracker()
                 }
