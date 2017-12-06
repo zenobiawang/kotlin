@@ -22,7 +22,11 @@ class TestFlowLayoutActivity : AppCompatActivity() {
                     TextView(this).apply {
                         text = "这是测试$it"
                         gravity = Gravity.CENTER
-                        layoutParams = ViewGroup.LayoutParams(350 , 300 + it * 50)
+                        layoutParams = if (it == 1){
+                            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 300 + it * 600)
+                        }else{
+                            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 300 + it * 50)
+                        }
                         background = resources.getDrawable(R.color.little_yellow)
                     }
                 }

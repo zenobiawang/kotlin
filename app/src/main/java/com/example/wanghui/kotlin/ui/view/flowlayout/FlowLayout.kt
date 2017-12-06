@@ -93,12 +93,38 @@ class FlowLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defS
         }
     }
 
+    var columnHeight = arrayListOf(0, 0, 0)
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         linePoints.clear()
         when(orientation){
             VERTICAL -> layoutVertical(l, t, r, b)
             HORIZONTAL -> layoutHorizontal(l, t, r, b)
         }
+//        val childWidth = 540
+//        for (i in 0 until childCount){
+//            val child = getChildAt(i)
+//            val top = getChildTop()
+//            val maxIndex = columnHeight.indexOf(top)
+//            val left = paddingLeft + childWidth*maxIndex + itemDivideHorizontalAttr*maxIndex
+//            val bottom = top + child.measuredHeight
+//            val right = paddingLeft + childWidth*(maxIndex + 1) + itemDivideHorizontalAttr*maxIndex
+//            columnHeight[maxIndex] = bottom + itemDivideVerticalAttr
+//            child.layout(left, top, right, bottom)
+//            Log.d("debug", "debug----${child.measuredWidth}---${child.left}--${child.top}--${child.bottom}--${child.right}")
+//        }
+    }
+
+    /**
+     * 获取view的顶部
+     */
+    private fun getChildTop(): Int {
+        var top = Int.MAX_VALUE
+        columnHeight.forEach({
+            if (it < top){
+                top = it
+            }
+        })
+        return top
     }
 
     private fun layoutHorizontal(l: Int, t: Int, r: Int, b: Int) {
