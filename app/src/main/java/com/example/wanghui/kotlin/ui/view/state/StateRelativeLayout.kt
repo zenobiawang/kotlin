@@ -11,10 +11,9 @@ import java.util.*
  * Created by wanghui on 2017/9/29.
  * 多种状态的相对布局
  */
-class StateRelativeLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : RelativeLayout(context, attrs, defStyleAttr, defStyleRes) {
-    constructor(context: Context) : this(context, null, 0, 0)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0, 0)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : this(context, attrs, defStyleAttr, 0)
+class StateRelativeLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : RelativeLayout(context, attrs, defStyleAttr) {
+    constructor(context: Context) : this(context, null, 0)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     private val state1 : IntArray = kotlin.IntArray(1).apply { set(0, R.attr.state_1) }
     private val state2 : IntArray = kotlin.IntArray(1).apply { set(0, R.attr.state_2) }
     private val state3 : IntArray = kotlin.IntArray(1).apply { set(0, R.attr.state_3) }

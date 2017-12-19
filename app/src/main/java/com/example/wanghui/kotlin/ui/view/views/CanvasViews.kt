@@ -12,11 +12,10 @@ import com.example.wanghui.kotlin.R
  * Created by wanghui on 2017/8/24.
  * canvas api
  */
-class CanvasViews(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : View(context, attrs, defStyleAttr, defStyleRes) {
+class CanvasViews(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : View(context, attrs, defStyleAttr) {
     val paint = Paint()
-    constructor(context: Context):this(context, null, 0, 0)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0, 0)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : this(context, attrs, defStyleAttr, 0)
+    constructor(context: Context):this(context, null, 0)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
 
     init {
         paint.isAntiAlias = true

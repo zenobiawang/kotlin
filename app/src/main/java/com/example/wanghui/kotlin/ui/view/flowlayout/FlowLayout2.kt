@@ -1,6 +1,9 @@
 package com.example.wanghui.kotlin.ui.view.flowlayout
 
 import android.content.Context
+import android.support.v4.view.MotionEventCompat
+import android.support.v4.view.ViewCompat
+import android.support.v4.widget.ScrollerCompat
 import android.util.AttributeSet
 import android.util.Log
 import android.view.*
@@ -12,25 +15,19 @@ import com.example.wanghui.kotlin.R
  */
 class FlowLayout2(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : ViewGroup(context, attrs, defStyleAttr) {
     private val TAG = "FlowLayoutNew"
-    private var itemDivideHorizontalAttr = 0
-    private var itemDivideVerticalAttr = 0
-    private var divideVertical = 0
-    private var divideHorizontal = 0
+    private var itemDivideHorizontal = 0
+    private var itemDivideVertical = 0
     private var columns: Int = 2
-    private var columnHeight = ArrayList<Int>()
     private var childWidth = 0
 
-    private val scroller : OverScroller  //可以滑动查看
+    private val scroller : ScrollerCompat  //可以滑动查看
     private var touchSlop = 0
     private var currentX = 0f
     private var currentY = 0f
-    private var rightBorder = 0     //滑动边界
-    private var bottomBorder = 0
-    private var leftBorder = 0
-    private var topBorder = 0
     private var minVelocity = 0
     private var maxVelocity = 0
     private var velocityTracker : VelocityTracker? = null
+    private var isBeingDragged = false //是否达到滚动条件
 
     constructor(context: Context):this(context, null, 0)
     constructor(context: Context, attrs: AttributeSet?):this(context, attrs, 0)
@@ -39,69 +36,88 @@ class FlowLayout2(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : V
     init {
         context.obtainStyledAttributes(attrs, R.styleable.FlowLayout).apply {
             val itemPadding = getDimension(R.styleable.FlowLayout_item_padding, 0f)
-            itemDivideHorizontalAttr = getDimension(R.styleable.FlowLayout_item_divide_horizontal, itemPadding).toInt()
-            itemDivideVerticalAttr = getDimension(R.styleable.FlowLayout_item_divide_vertical, itemPadding).toInt()
+            itemDivideHorizontal = getDimension(R.styleable.FlowLayout_item_divide_horizontal, itemPadding).toInt()
+            itemDivideVertical = getDimension(R.styleable.FlowLayout_item_divide_vertical, itemPadding).toInt()
             columns = getInt(R.styleable.FlowLayout_columns, 2)
         }.recycle()
 
-        scroller = OverScroller(context)
+        scroller = ScrollerCompat.create(context)
         ViewConfiguration.get(context).run {
             touchSlop = scaledPagingTouchSlop
             minVelocity = scaledMinimumFlingVelocity
             maxVelocity = scaledMaximumFlingVelocity
         }
-        isClickable = true
+        isFocusable = true  //todo 为什么设置他们
+        descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
     }
 
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {  //todo measure wrap_content
-        val widthMode = View.MeasureSpec.getMode(widthMeasureSpec)
-        val heightMode = View.MeasureSpec.getMode(heightMeasureSpec)
-        var widthSize = View.MeasureSpec.getSize(widthMeasureSpec)
-        var heightSize = View.MeasureSpec.getSize(heightMeasureSpec)
-
-        childWidth = (widthSize - divideHorizontal*(columns-1))/columns
-        measureChildren(View.MeasureSpec.makeMeasureSpec(childWidth, widthMode), heightMeasureSpec)
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-    }
+        var widthSize = View.MeasureSpec.getSize(widthMeasureSpec)
 
-    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        resetColumnsHeight(t)
-        topBorder = t
-        leftBorder = l
-        for (i in 0 until childCount){
-            val child = getChildAt(i)
-            val top = getChildTop()
-            val maxIndex = columnHeight.indexOf(top)
-            val left = l + paddingLeft + childWidth*maxIndex + itemDivideHorizontalAttr*maxIndex
-            val bottom = top + child.measuredHeight
-            val right = paddingLeft + childWidth*(maxIndex + 1) + itemDivideHorizontalAttr*maxIndex
-            columnHeight[maxIndex] = bottom + itemDivideVerticalAttr
-            child.layout(left, top, right, bottom)
-
-            bottomBorder = Math.max(bottom, bottomBorder)
+        childWidth = (widthSize - itemDivideHorizontal*(columns-1) - paddingLeft - paddingRight)/columns
+        (0 until childCount).forEach{
+            getChildAt(it).measure(getMeasureChildSpec(widthMeasureSpec, childWidth, 0),
+                    getMeasureChildSpec(heightMeasureSpec, LayoutParams.WRAP_CONTENT, 0))
         }
 
-        resetColumnsHeight(t)
-    }
-
-    private fun resetColumnsHeight(t: Int){
-        columnHeight.clear()
-        (0 until columns).forEach({
-            columnHeight.add(paddingTop + t)
-        })
+        //todo 自测量
     }
 
     /**
-     * 获取view的顶部
+     * get child measureSpec
+     * @param parentMeasureSpec 当前view的measureSpec
+     * @param childDimension childView 的layoutParams
      */
-    private fun getChildTop(): Int {
-        var top = Int.MAX_VALUE
-        columnHeight.forEach({
-            if (it < top){
-                top = it
+    private fun getMeasureChildSpec(parentMeasureSpec: Int, childDimension: Int, padding: Int): Int{
+        val parentSize = MeasureSpec.getSize(parentMeasureSpec)
+        val parentMode = MeasureSpec.getMode(parentMeasureSpec)
+        return when(parentMode){
+            MeasureSpec.EXACTLY ->{
+                when(childDimension){
+                    LayoutParams.MATCH_PARENT -> MeasureSpec.makeMeasureSpec(parentSize - padding, MeasureSpec.EXACTLY)
+                    LayoutParams.WRAP_CONTENT -> MeasureSpec.makeMeasureSpec(childDimension, MeasureSpec.AT_MOST)
+                    else -> MeasureSpec.makeMeasureSpec(childDimension, MeasureSpec.EXACTLY)
+                }
             }
-        })
-        return top
+            MeasureSpec.AT_MOST ->{
+                when(childDimension){
+                    LayoutParams.MATCH_PARENT -> MeasureSpec.makeMeasureSpec(childDimension, MeasureSpec.AT_MOST)
+                    LayoutParams.WRAP_CONTENT -> MeasureSpec.makeMeasureSpec(childDimension, MeasureSpec.AT_MOST)
+                    else -> MeasureSpec.makeMeasureSpec(childDimension, MeasureSpec.EXACTLY)
+                }
+            }
+            MeasureSpec.UNSPECIFIED ->{
+                when(childDimension){
+                    LayoutParams.MATCH_PARENT -> MeasureSpec.makeMeasureSpec(childDimension, MeasureSpec.UNSPECIFIED)
+                    LayoutParams.WRAP_CONTENT -> MeasureSpec.makeMeasureSpec(childDimension, MeasureSpec.UNSPECIFIED)
+                    else -> MeasureSpec.makeMeasureSpec(childDimension, MeasureSpec.EXACTLY)
+                }
+            }
+            else ->{
+                when(childDimension){
+                    LayoutParams.MATCH_PARENT -> MeasureSpec.makeMeasureSpec(childDimension, MeasureSpec.UNSPECIFIED)
+                    LayoutParams.WRAP_CONTENT -> MeasureSpec.makeMeasureSpec(childDimension, MeasureSpec.UNSPECIFIED)
+                    else -> MeasureSpec.makeMeasureSpec(childDimension, MeasureSpec.EXACTLY)
+                }
+            }
+        }
+    }
+
+
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        var currentColumn = 0
+        var topArray = IntArray(columns){paddingTop}
+        for (i in 0 until childCount){
+            val child = getChildAt(i)
+            val top = topArray[currentColumn]
+            val left = l + paddingLeft + childWidth*currentColumn + itemDivideHorizontal*currentColumn
+            val bottom = top + child.measuredHeight
+            val right = paddingLeft + childWidth*(currentColumn + 1) + itemDivideHorizontal*currentColumn
+            topArray[currentColumn] = bottom + itemDivideVertical
+            child.layout(left, top, right, bottom)
+            currentColumn = topArray.indexOf(topArray.min()?:0)
+        }
     }
 
 
@@ -110,75 +126,107 @@ class FlowLayout2(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : V
      */
     override fun computeScroll() {
         if (scroller.computeScrollOffset()){
-            Log.d(TAG, "debug---computeScroll--${scroller.currY}")
             scrollTo(scroller.currX, scroller.currY)
-            postInvalidate()
+            ViewCompat.postInvalidateOnAnimation(this)  //todo
         }
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        when(ev.action){
+        when(ev.action and MotionEventCompat.ACTION_MASK){  //todo
             MotionEvent.ACTION_DOWN ->{
-                currentX = ev.rawX
-                currentY = ev.rawY
+                currentX = ev.x  //todo
+                currentY = ev.y
             }
             MotionEvent.ACTION_MOVE ->{
-                currentY = ev.rawY
-                return true
+                if (!isBeingDragged){
+                    val dy = ev.y - currentY
+                    if (Math.abs(dy) > touchSlop){
+                        isBeingDragged = true
+                    }
+                }
             }
-            MotionEvent.ACTION_UP ->{
-                return false
-            }
-            MotionEvent.ACTION_CANCEL ->{
+            MotionEvent.ACTION_UP , MotionEvent.ACTION_CANCEL->{
+                resetTouch()
                 return false
             }
         }
-        return super.onInterceptTouchEvent(ev)
+        return isBeingDragged
+    }
+
+    private fun resetTouch() {
+
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        when(event.action){
+        initVelocityTracker(event)
+        when(event.action and MotionEventCompat.ACTION_MASK){
             MotionEvent.ACTION_DOWN ->{
-                initVelocityTracker(event)
-                currentY = event.rawY
+                currentY = event.y
+                currentX = event.x
+                scroller.abortAnimation()
+                parent.requestDisallowInterceptTouchEvent(true)  //todo
+
             }
             MotionEvent.ACTION_MOVE -> {
-
-                if (scrollY + (currentY - event.rawY) < topBorder){
-                    scrollTo(0, topBorder)
-                    return true
-                }else if(scrollY + measuredHeight + currentY - event.rawY > bottomBorder){
-                    scrollTo(0, bottomBorder - measuredHeight)
-                    return true
+                val x = event.x
+                val y = event.y
+                val dy = currentY - y
+                if (!isBeingDragged && Math.abs(dy) > touchSlop){
+                    isBeingDragged = true
+                    currentX = x
+                    currentY = y
+                    parent.requestDisallowInterceptTouchEvent(true)
                 }
-                scrollBy(0, (currentY - event.rawY).toInt())
-                currentY = event.rawY
-                velocityTracker?.addMovement(event)
+
+                if (isBeingDragged){
+                    currentX = x
+                    currentY = y
+                    val verticalScrollRange = computeVerticalScrollRange()
+                    var scrollDif = dy
+                    if (scrollY + dy <= 0){
+                        scrollDif = scrollY.toFloat()
+                    }else if (scrollY + dy >= verticalScrollRange){
+                        scrollDif = (verticalScrollRange - scrollY).toFloat()
+                    }
+                    scrollBy(0, scrollDif.toInt())
+                    invalidate()
+                }
             }
-            MotionEvent.ACTION_UP ->{  //todo fling
-                if (velocityTracker != null){
+            MotionEvent.ACTION_UP ->{
+                if (isBeingDragged && velocityTracker != null){
                     velocityTracker!!.computeCurrentVelocity(1000, maxVelocity.toFloat())
-                    if (Math.abs(velocityTracker!!.yVelocity) > minVelocity){
-                        scroller.fling(scrollX, scrollY, 0, -velocityTracker!!.yVelocity.toInt(),
-                                leftBorder, rightBorder, topBorder, bottomBorder - measuredHeight, 0, 50)
+                    val velocityY = velocityTracker!!.yVelocity
+                    if (Math.abs(velocityY) > minVelocity){
+                        //todo 限定整个滚动区域位置，如果复用，则需要动态计算
+                        val verticalScrollRange = computeVerticalScrollRange()
+                        scroller.fling(scrollX, scrollY, 0, -velocityY.toInt(), 0, 0, 0, verticalScrollRange, 0, 30)
                         postInvalidate()
                     }
-                    releaseVelocityTracker()
+
                 }
+                releaseVelocityTracker()
             }
             MotionEvent.ACTION_CANCEL ->{
                 releaseVelocityTracker()
             }
 
         }
-        return super.onTouchEvent(event)
+        return true
+    }
+
+    override fun computeVerticalScrollExtent(): Int {
+        val childBottom = ((childCount - columns) until childCount).map { getChildAt(it).bottom }.maxBy { it }?:0
+        return childBottom + paddingBottom
+    }
+
+    override fun computeVerticalScrollRange(): Int {
+        return computeVerticalScrollExtent() - height
     }
 
     private fun initVelocityTracker(event: MotionEvent){
         if (velocityTracker == null){
             velocityTracker = VelocityTracker.obtain()
         }
-        velocityTracker!!.clear()
         velocityTracker!!.addMovement(event)
     }
 

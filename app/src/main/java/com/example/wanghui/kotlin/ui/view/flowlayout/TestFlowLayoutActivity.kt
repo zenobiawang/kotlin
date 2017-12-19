@@ -20,18 +20,15 @@ class TestFlowLayoutActivity : AppCompatActivity() {
     }
 
     private fun setFlowContent() {
-        (0 until 20).map {
-                    TextView(this).apply {
-                        text = "这是测试$it"
-                        gravity = Gravity.CENTER
-                        layoutParams = if (it == 1){
-                            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 300 + it * 600)
-                        }else{
-                            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT , 300 + it * 50)
-                        }
-                        backgroundColor = ContextCompat.getColor(context, R.color.little_yellow)
-                    }
-                }
-                .forEach { flowLayout.addView(it) }
+        val inputStream = assets.open("txt/text1.txt")
+        inputStream.bufferedReader().readLines().map {
+            TextView(this).apply {
+                text = it
+                gravity = Gravity.CENTER
+                backgroundColor = ContextCompat.getColor(context, R.color.little_yellow)
+            }
+        }.forEach {
+            flowLayout.addView(it)
+        }
     }
 }

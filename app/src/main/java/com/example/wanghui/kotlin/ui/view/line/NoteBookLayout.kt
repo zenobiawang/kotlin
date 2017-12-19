@@ -19,7 +19,7 @@ import com.example.wanghui.kotlin.R
  * ------------
  * ------------
  */
-class NoteBookLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : ViewGroup(context, attrs, defStyleAttr, defStyleRes) {
+class NoteBookLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : ViewGroup(context, attrs, defStyleAttr) {
     val TAG = "NoteBookLayout"
     var lines : Int = 5   //范围内分割线的数量
     var lineHeight : Int = 1 //分割线的高度
@@ -29,9 +29,8 @@ class NoteBookLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int, 
     var paint : Paint? = null
     var linePadding = 0 //线条与边框的边距
 
-    constructor(context: Context) : this(context, null, 0, 0)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0, 0)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : this(context, attrs, defStyleAttr, 0)
+    constructor(context: Context) : this(context, null, 0)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
 
     /**
      * <attr name="lines" format="integer" />

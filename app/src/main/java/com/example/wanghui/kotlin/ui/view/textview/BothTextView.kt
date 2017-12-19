@@ -14,7 +14,7 @@ import com.example.wanghui.kotlin.R
  * 两侧都有文字
  * 文字过多处理
  */
-class BothTextView(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : TextView(context, attrs, defStyleAttr, defStyleRes) {
+class BothTextView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : TextView(context, attrs, defStyleAttr) {
     var subText : String? = null
     var subTextColor : Int = 0
     var subTextSize : Int = 0
@@ -22,9 +22,8 @@ class BothTextView(context: Context, attrs: AttributeSet?, defStyleAttr: Int, de
     var subTextPaint : Paint
 
 
-    constructor(context: Context) : this(context, null, 0, 0)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0, 0)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : this(context, attrs, defStyleAttr, 0)
+    constructor(context: Context) : this(context, null, 0)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
 
     init {
         context.obtainStyledAttributes(attrs, R.styleable.BothTextView).apply {

@@ -11,7 +11,7 @@ import com.example.wanghui.kotlin.R
  * Created by wanghui on 2017/8/21.
  * 自己的demo未实现，未找出原因
  */
-class PorterDuffView(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : View(context, attrs, defStyleAttr, defStyleRes) {
+class PorterDuffView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : View(context, attrs, defStyleAttr) {
     val paint = Paint()
     var bitmap : Bitmap? = null
     var bitmaps : Bitmap? = null
@@ -39,9 +39,8 @@ class PorterDuffView(context: Context, attrs: AttributeSet?, defStyleAttr: Int, 
             "DstOut", "SrcATop", "DstATop", "Xor",
             "Darken", "Lighten", "Multiply", "Screen")
 
-    constructor(context: Context):this(context, null, 0, 0)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0, 0)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : this(context, attrs, defStyleAttr, 0)
+    constructor(context: Context):this(context, null, 0)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
 
     init {
         paint.isAntiAlias = true

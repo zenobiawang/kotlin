@@ -14,19 +14,18 @@ import org.jetbrains.anko.padding
  * Created by wanghui on 2017/8/21.
  * 圆
  */
-class CircleView(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : View(context, attrs, defStyleAttr, defStyleRes) {
+class CircleView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : View(context, attrs, defStyleAttr) {
     val paint : Paint = Paint()
 
-    constructor(context: Context) : this(context, null, 0, 0)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0, 0)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : this(context, attrs, defStyleAttr, 0)
+    constructor(context: Context) : this(context, null, 0)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
 
     init {
         paint.color = resources.getColor(R.color.red)
         paint.isAntiAlias = true   //消除锯齿
 //        paint.colorFilter = LightingColorFilter()    图像处理
         paint.style = Paint.Style.FILL_AND_STROKE
-        setLayerType(LAYER_TYPE_SOFTWARE, paint)  //阴影处理一定要关闭硬件加速
+//        setLayerType(LAYER_TYPE_SOFTWARE, paint)  //阴影处理一定要关闭硬件加速
         paint.setShadowLayer(20f, 20f, 20f, resources.getColor(android.R.color.black))
     }
 

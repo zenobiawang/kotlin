@@ -11,7 +11,7 @@ import org.jetbrains.anko.padding
 /**
  * Created by wanghui on 2017/11/29.
  */
-class FlowLayoutNew(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : ViewGroup(context, attrs, defStyleAttr, defStyleRes) {
+class FlowLayoutNew(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : ViewGroup(context, attrs, defStyleAttr) {
     private val TAG = "FlowLayoutNew"
     private var itemDivideHorizontalAttr = 0
     private var itemDivideVerticalAttr = 0
@@ -33,9 +33,8 @@ class FlowLayoutNew(context: Context, attrs: AttributeSet?, defStyleAttr: Int, d
     private var maxVelocity = 0
     private var velocityTracker : VelocityTracker? = null
 
-    constructor(context: Context):this(context, null, 0, 0)
-    constructor(context: Context, attrs: AttributeSet?):this(context, attrs, 0, 0)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int): this(context, attrs, defStyleAttr, 0)
+    constructor(context: Context):this(context, null, 0)
+    constructor(context: Context, attrs: AttributeSet?):this(context, attrs, 0)
 
 
     init {
@@ -156,13 +155,14 @@ class FlowLayoutNew(context: Context, attrs: AttributeSet?, defStyleAttr: Int, d
                 scrollBy(0, (currentY - event.rawY).toInt())
                 currentY = event.rawY
                 velocityTracker?.addMovement(event)
-                velocityTracker?.computeCurrentVelocity(1000, maxVelocity.toFloat())
             }
             MotionEvent.ACTION_UP ->{  //todo fling
                 if (velocityTracker != null){
+                    velocityTracker?.computeCurrentVelocity(1000, maxVelocity.toFloat())
                     if (Math.abs(velocityTracker!!.yVelocity) > minVelocity){
                         scroller.fling(scrollX, scrollY, 0, -velocityTracker!!.yVelocity.toInt(),
                                 leftBorder, rightBorder, topBorder, bottomBorder - measuredHeight, 0, 50)
+                        postInvalidate()
                     }
                     releaseVelocityTracker()
                 }

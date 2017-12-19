@@ -16,7 +16,7 @@ import android.util.TypedValue
  * Created by wanghui on 2017/7/26.
  * 圆角图片
  */
-class RoundImageView(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : ImageView(context, attrs, defStyleAttr, defStyleRes) {
+class RoundImageView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : ImageView(context, attrs, defStyleAttr) {
     val STORAGE_INSTANCE = "storage_instance"
     val STORAGE_TYPE = "storage_type"
     val STORAGE_RADIUS = "storage_radius"
@@ -27,9 +27,8 @@ class RoundImageView(context: Context, attrs: AttributeSet?, defStyleAttr: Int, 
     var roundRect : RectF? = null
     val bitmapPaint = Paint()
 
-    constructor(context: Context) : this(context, null, 0, 0)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0, 0)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : this(context, attrs, defStyleAttr, 0)
+    constructor(context: Context) : this(context, null, 0)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
 
     init {
         context.obtainStyledAttributes(attrs, R.styleable.RoundImageView).apply {
