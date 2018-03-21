@@ -5,15 +5,13 @@ import android.support.v4.view.MotionEventCompat
 import android.support.v4.view.ViewCompat
 import android.support.v4.widget.ScrollerCompat
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
-import android.widget.OverScroller
 import com.example.wanghui.kotlin.R
 
 /**
- * Created by wanghui on 2017/12/6.
+ * Created by wanghui on 17/12/26.
  */
-class FlowLayout2(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : ViewGroup(context, attrs, defStyleAttr) {
+class FlowLayout3(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : ViewGroup(context, attrs, defStyleAttr) {
     private val TAG = "FlowLayoutNew"
     private var itemDivideHorizontal = 0
     private var itemDivideVertical = 0
