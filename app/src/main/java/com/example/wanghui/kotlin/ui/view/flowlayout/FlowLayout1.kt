@@ -11,7 +11,7 @@ import org.jetbrains.anko.padding
 /**
  * Created by wanghui on 2017/11/29.
  */
-class FlowLayoutNew(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : ViewGroup(context, attrs, defStyleAttr) {
+class FlowLayout1(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : ViewGroup(context, attrs, defStyleAttr) {
     private val TAG = "FlowLayoutNew"
     private var itemDivideHorizontalAttr = 0
     private var itemDivideVerticalAttr = 0

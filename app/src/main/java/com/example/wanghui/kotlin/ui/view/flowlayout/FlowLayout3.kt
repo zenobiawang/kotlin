@@ -1,15 +1,23 @@
 package com.example.wanghui.kotlin.ui.view.flowlayout
 
 import android.content.Context
+import android.os.Build
 import android.support.v4.view.MotionEventCompat
 import android.support.v4.view.ViewCompat
 import android.support.v4.widget.ScrollerCompat
 import android.util.AttributeSet
+import android.util.Log
 import android.view.*
 import com.example.wanghui.kotlin.R
+import org.jetbrains.anko.view
 
 /**
  * Created by wanghui on 17/12/26.
+ *
+ * 18年3月26日难题：
+ * 1、怎么确定哪个child滑出了页面该被回收了
+ * 2、怎么确定该加载新的child了
+ * 3、怎么确定fling边界
  */
 class FlowLayout3(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : ViewGroup(context, attrs, defStyleAttr) {
     private val TAG = "FlowLayoutNew"
@@ -26,9 +34,21 @@ class FlowLayout3(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : V
     private var maxVelocity = 0
     private var velocityTracker : VelocityTracker? = null
     private var isBeingDragged = false //是否达到滚动条件
+    private var adapter: FlowLayoutAdapter<*>? = null
+    private lateinit var state: FlowLayoutState
+    private var mRecycler = RecyclerBin()
+
+    private var mWidthMeasureSpec = 0
+    private var mHeightMeasureSpec = 0
+
 
     constructor(context: Context):this(context, null, 0)
     constructor(context: Context, attrs: AttributeSet?):this(context, attrs, 0)
+
+    companion object {
+        val DIRECTION_START = -1
+        val DIRECTION_END = 1
+    }
 
 
     init {
@@ -47,12 +67,26 @@ class FlowLayout3(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : V
         }
         isFocusable = true  //todo 为什么设置他们
         descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
+
+        initState()
+    }
+
+    private fun initState() {
+        state = FlowLayoutState().apply {
+            position = 0
+            itemDeriction = DIRECTION_END
+            layoutOffset = 0
+            currentPosition = 0
+        }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        var widthSize = View.MeasureSpec.getSize(widthMeasureSpec)
-
+        mHeightMeasureSpec = heightMeasureSpec
+        mWidthMeasureSpec = widthMeasureSpec
+        var widthSize = MeasureSpec.getSize(widthMeasureSpec)
+        var heightSize = MeasureSpec.getSize(heightMeasureSpec)
+        state.available = heightSize  //初始为本身控件的高度
         childWidth = (widthSize - itemDivideHorizontal*(columns-1) - paddingLeft - paddingRight)/columns
         (0 until childCount).forEach{
             getChildAt(it).measure(getMeasureChildSpec(widthMeasureSpec, childWidth, 0),
@@ -104,10 +138,34 @@ class FlowLayout3(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : V
 
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        if (childCount != 0){
+            //todo
+            return
+        }
         var currentColumn = 0
         var topArray = IntArray(columns){paddingTop}
-        for (i in 0 until childCount){
-            val child = getChildAt(i)
+//        for (i in 0 until childCount){
+//            val child = getChildAt(i)
+//            val top = topArray[currentColumn]
+//            val left = l + paddingLeft + childWidth*currentColumn + itemDivideHorizontal*currentColumn
+//            val bottom = top + child.measuredHeight
+//            val right = paddingLeft + childWidth*(currentColumn + 1) + itemDivideHorizontal*currentColumn
+//            topArray[currentColumn] = bottom + itemDivideVertical
+//            child.layout(left, top, right, bottom)
+//            currentColumn = topArray.indexOf(topArray.min()?:0)
+//        }
+
+        if (adapter == null){
+            return
+        }
+        val localAdapter = adapter!!
+        var localAvailable = state.available
+        while (localAvailable >= topArray[currentColumn] && hasMore(localAdapter)){
+            val child = newView(localAdapter)
+            addView(child)
+            localAdapter.bindView(state.position, child)
+            state.position ++
+            measureChildFirst(child)
             val top = topArray[currentColumn]
             val left = l + paddingLeft + childWidth*currentColumn + itemDivideHorizontal*currentColumn
             val bottom = top + child.measuredHeight
@@ -115,8 +173,41 @@ class FlowLayout3(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : V
             topArray[currentColumn] = bottom + itemDivideVertical
             child.layout(left, top, right, bottom)
             currentColumn = topArray.indexOf(topArray.min()?:0)
+            state.layoutOffset += child.measuredHeight * state.itemDeriction
+            mRecycler.fillActiveView()
+        }
+        state.available = localAvailable - topArray[currentColumn]
+    }
+
+    /**
+     * 测量
+     */
+    private fun measureChildFirst(child: View) {
+        childWidth = (width - itemDivideHorizontal*(columns-1) - paddingLeft - paddingRight)/columns
+        child.measure(getMeasureChildSpec(mWidthMeasureSpec, childWidth, 0),
+                getMeasureChildSpec(mHeightMeasureSpec, LayoutParams.WRAP_CONTENT, 0))
+    }
+
+    private fun newView(adapter: FlowLayoutAdapter<*>):View{
+        return adapter.getView(context, state.position, this)
+    }
+
+    private fun hasMore(adapter: FlowLayoutAdapter<*>?): Boolean {
+        return if (this.adapter == null){
+            false
+        }else{
+            state.position in 0..this.adapter!!.getCount()
         }
     }
+
+
+    fun setAdapter(adapter: FlowLayoutAdapter<*>){
+        Log.d("wh----", "wh-----setAdapter")
+        this.adapter = adapter
+        requestLayout()
+    }
+
+
 
 
     /**
@@ -180,15 +271,16 @@ class FlowLayout3(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : V
                 if (isBeingDragged){
                     currentX = x
                     currentY = y
-                    val verticalScrollRange = computeVerticalScrollRange()
-                    var scrollDif = dy
-                    if (scrollY + dy <= 0){
-                        scrollDif = scrollY.toFloat()
-                    }else if (scrollY + dy >= verticalScrollRange){
-                        scrollDif = (verticalScrollRange - scrollY).toFloat()
-                    }
-                    scrollBy(0, scrollDif.toInt())
-                    invalidate()
+                    scrollIfNeed(dy)
+//                    val verticalScrollRange = computeVerticalScrollRange()
+//                    var scrollDif = dy
+//                    if (scrollY + dy <= 0){//边界
+//                        scrollDif = scrollY.toFloat()
+//                    }else if (scrollY + dy >= verticalScrollRange){
+//                        scrollDif = (verticalScrollRange - scrollY).toFloat()
+//                    }
+//                    scrollBy(0, scrollDif.toInt())
+//                    invalidate()
                 }
             }
             MotionEvent.ACTION_UP ->{
@@ -213,6 +305,41 @@ class FlowLayout3(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : V
         return true
     }
 
+    /**
+     * 判断是否需要加载下一个view->判断已加载的位置是否是最后的位置，是则返回目前的边界，不是则加载下一个view
+     */
+    private fun scrollIfNeed(dy: Float) {
+        val childArray = ((childCount - columns) until childCount).map { getChildAt(it).bottom }
+        val minBottomIndex = childArray.indexOf(childArray.min())
+        Log.d("wh---", "wh----$minBottomIndex----$childArray")
+        val minBottomChild = getChildAt(minBottomIndex)
+        if (scrollY + dy >= minBottomChild.bottom){//加载下一个view
+            if (state.position < adapter?.getCount()?:0){
+                val child = mRecycler.getViewToUse()
+                state.position ++
+                addView(child)
+                adapter!!.bindView(state.position, child)
+                measureChildFirst(child)
+                val top = minBottomChild.bottom + itemDivideVertical
+                val left = minBottomChild.left
+                val bottom = top + child.measuredHeight
+                val right = minBottomChild.right
+                child.layout(left, top, right, bottom)
+                state.layoutOffset += child.measuredHeight * state.itemDeriction
+            }
+        }
+        val verticalScrollRange = computeVerticalScrollRange()
+        var scrollDif = dy
+        if (scrollY + dy <= 0){//边界
+            scrollDif = scrollY.toFloat()
+        }else if (scrollY + dy >= verticalScrollRange){
+            scrollDif = (verticalScrollRange - scrollY).toFloat()
+        }
+        scrollBy(0, scrollDif.toInt())
+        invalidate()
+    }
+
+
     override fun computeVerticalScrollExtent(): Int {
         val childBottom = ((childCount - columns) until childCount).map { getChildAt(it).bottom }.maxBy { it }?:0
         return childBottom + paddingBottom
@@ -233,6 +360,50 @@ class FlowLayout3(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : V
         if (velocityTracker != null){
             velocityTracker!!.recycle()
             velocityTracker = null
+        }
+    }
+
+    class FlowLayoutState{
+
+        var currentPosition = 0 //当前第一个可见的view的position
+
+        var position = 0 //当前位置
+
+        var available = 0 //当前可用空间
+
+        var itemDeriction = DIRECTION_END //当前操作方向
+
+        var layoutOffset = 0//当前排版位置  底部最高列的高度
+    }
+
+    inner class RecyclerBin{
+        var activeViews  = arrayListOf<View>()  //显示在屏幕中的child
+        var recyclerView = arrayListOf<View>()  //回收的child
+
+        fun recycleView(child: View){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                child.dispatchStartTemporaryDetach()
+            }else{
+                removeDetachedView(child, false)
+            }
+            recyclerView.add(child)
+        }
+
+        fun fillActiveView(){
+            (0..childCount).forEach {
+                activeViews.add(view())
+            }
+        }
+
+        fun getViewToUse(): View{
+            var view = recyclerView.getOrNull(0)
+            if (view != null){
+                recyclerView.remove(view)
+            }else{
+                view = adapter!!.getView(context, state.position, this@FlowLayout3)
+            }
+            activeViews.add(view)
+            return view
         }
     }
 }

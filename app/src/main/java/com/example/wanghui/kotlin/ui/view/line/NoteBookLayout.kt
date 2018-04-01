@@ -54,14 +54,14 @@ class NoteBookLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int) 
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        for (i in 0..childCount -1){
+        for (i in 0 until childCount){
             getChildAt(i).layout(l, i * interval, r, (i + 1) * interval)
         }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        for (i in 0..childCount -1){
+        for (i in 0 until childCount){
             measureChild(getChildAt(i), widthMeasureSpec, MeasureSpec.makeMeasureSpec(interval, MeasureSpec.EXACTLY))
         }
         interval = measuredHeight/lines

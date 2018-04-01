@@ -76,9 +76,9 @@ class RoundImageView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) 
 
         val shader = BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
         val scale : Float
-        when(type){
-            CIRCLE -> scale = measuredHeight * 1.0f/Math.min(bitmap.height, bitmap.width)
-            else -> scale = Math.max(measuredWidth * 1.0f/bitmap.width, measuredHeight * 1.0f/bitmap.height)
+        scale = when(type){
+            CIRCLE -> measuredHeight * 1.0f/Math.min(bitmap.height, bitmap.width)
+            else -> Math.max(measuredWidth * 1.0f/bitmap.width, measuredHeight * 1.0f/bitmap.height)
         }
         val matrix = Matrix().apply { setScale(scale, scale) }
         shader.setLocalMatrix(matrix)

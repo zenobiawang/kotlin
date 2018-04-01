@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context="com.example.wanghui.kotlin.ui.view.flowlayout.TestFlowLayoutActivity">
 
-    <com.example.wanghui.kotlin.ui.view.flowlayout.FlowLayout2
+    <com.example.wanghui.kotlin.ui.view.flowlayout.FlowLayout3
         android:id="@+id/flowLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

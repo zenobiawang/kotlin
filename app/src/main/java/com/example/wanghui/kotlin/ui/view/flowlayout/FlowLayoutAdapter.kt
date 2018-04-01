@@ -8,8 +8,30 @@ import android.view.ViewGroup
  * Created by wanghui on 17/12/20.
  * 新建view、刷新view数据
  */
-abstract class FlowLayoutAdapter {
-    abstract fun bindView(context: Context, position: Int, parent: ViewGroup)
+abstract class FlowLayoutAdapter<T>(context: Context, items: MutableList<T>?) {
+    private val localItems : MutableList<T> = ArrayList()
 
-    abstract fun initData(position: Int, view: View)
+    init {
+        items?.apply { localItems.addAll(this) }
+    }
+    abstract fun getView(context: Context, position: Int, parent: ViewGroup) : View
+
+    abstract fun bindView(position: Int, view: View)
+
+    fun getItem(position: Int) : T{
+        return localItems[position]
+    }
+
+    fun getCount(): Int{
+        return localItems.size
+    }
+
+    fun swapItems(data: MutableList<T>){  //todo
+        localItems.clear()
+        localItems.addAll(data)
+    }
+
+    fun addItems(data: MutableList<T>){ //todo
+        localItems.addAll(data)
+    }
 }
