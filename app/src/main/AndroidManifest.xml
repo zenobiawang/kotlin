@@ -27,12 +27,9 @@
         <activity android:name=".test.TestAssetActivity" />
         <activity android:name=".ui.view.flowlayout.TestFlowLayoutActivity" />
         <activity android:name=".ui.view.views.TestViewsActivity" />
-        <activity
-            android:name=".LoginActivity"
-            android:label="@string/title_activity_login" />
         <activity android:name=".ui.view.state.StateTestActivity" />
-        <activity android:name=".ui.Main3Activity" />
         <activity android:name=".ui.layoutmanager.LayoutManager1Activity"></activity>
+        <activity android:name=".ui.view.fall.TestFallActivity"></activity>
     </application>
 
 </manifest>

@@ -380,14 +380,14 @@ class FlowLayout3(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : V
         var activeViews  = arrayListOf<View>()  //显示在屏幕中的child
         var recyclerView = arrayListOf<View>()  //回收的child
 
-        fun recycleView(child: View){
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                child.dispatchStartTemporaryDetach()
-            }else{
-                removeDetachedView(child, false)
-            }
-            recyclerView.add(child)
-        }
+//        fun recycleView(child: View){
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//                child.dispatchStartTemporaryDetach()
+//            }else{
+//                removeDetachedView(child, false)
+//            }
+//            recyclerView.add(child)
+//        }
 
         fun fillActiveView(){
             (0..childCount).forEach {
