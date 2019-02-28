@@ -22,6 +22,10 @@ class TestFallActivity: AppCompatActivity() {
         val matrix = Matrix().apply { postScale(dip(30)/bitmap.width.toFloat(), dip(30)/bitmap.height.toFloat())}
         val newB = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
         val fallEntity = FallView.FallEntity(beginY = 100,  endY = 1500, disappearY = 1200, image = newB, speedRange = "500-550", viewWidth = 1080)
-        fallView.show(mutableListOf(fallEntity), 20, 10000)
+        val bitmap1 = BitmapFactory.decodeResource(resources, R.drawable.img_circle)
+        val matrix1 = Matrix().apply { postScale(dip(30)/bitmap1.width.toFloat(), dip(30)/bitmap1.height.toFloat())}
+        val newB1 = Bitmap.createBitmap(bitmap1, 0, 0, bitmap1.width, bitmap1.height, matrix1, true)
+        val fallEntity1 = FallView.FallEntity(beginY = 100,  endY = 1500, disappearY = 1200, image = newB1, speedRange = "500-550", viewWidth = 1080)
+        fallView.show(mutableListOf(fallEntity, fallEntity1), 20, 10000)
     }
 }

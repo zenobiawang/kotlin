@@ -84,7 +84,7 @@ class FallView @JvmOverloads constructor(context: Context, attributeSet: Attribu
             }
         }
 
-        fun initCurrentX(): Float = if (viewWidth > 0)random.nextInt(viewWidth - 60) + 60.toFloat() else 0f//屏幕的宽度
+        private fun initCurrentX(): Float = if (viewWidth > 0)random.nextInt(viewWidth - 60) + 60.toFloat() else 0f//屏幕的宽度
 
 
         fun drawObject(canvas: Canvas, canReset: Boolean){
@@ -109,7 +109,6 @@ class FallView @JvmOverloads constructor(context: Context, attributeSet: Attribu
             if (currentY > disappearY){
                 currentAlpha = maxAlpha - (maxAlpha * (currentY - disappearY)/(endY - disappearY)).toInt()
             }
-            Log.d("wh", "wh------- ${this.hashCode()}----$currentY-- ${System.currentTimeMillis()}")
         }
 
         fun copy(): FallEntity{
