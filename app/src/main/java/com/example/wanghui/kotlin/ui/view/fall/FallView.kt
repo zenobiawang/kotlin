@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import com.jakewharton.rxbinding2.view.RxView
 import java.util.*
 
 /**

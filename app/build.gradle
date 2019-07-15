@@ -51,6 +51,7 @@ dependencies {
     compile 'com.zhy:flowlayout-lib:1.0.3'
     compile 'com.android.support:recyclerview-v7:24.2.1'
     compile 'com.android.support:design:24.2.1'
+    compile 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
     testCompile 'junit:junit:4.12'
 }
 repositories {
