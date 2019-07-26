@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.ViewGroup
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main2.*
+import kotlinx.android.synthetic.main.activity_test_mountingview.*
 import org.jetbrains.anko.UI
 import org.jetbrains.anko.dip
 import org.jetbrains.anko.find
@@ -18,9 +19,33 @@ class Main2Activity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main2)
-        testScroller()
+        setContentView(R.layout.activity_test_mountingview)
+        testMountingView()
+//        setContentView(R.layout.activity_main2)
+//        testScroller()
     }
+
+    private fun testMountingView(){
+        mountingHeader.layoutManager = LinearLayoutManager(this)
+        mountingTail.layoutManager = LinearLayoutManager(this)
+        mountingHeader.adapter = Adapter(createList("1"))
+        mountingTail.adapter = Adapter(createList("2"))
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private fun testScroller() {
         recyclerView1.layoutManager = LinearLayoutManager(this)
@@ -30,7 +55,7 @@ class Main2Activity : AppCompatActivity() {
     }
 
     private fun createList(sub: String): List<String>{
-        return (0..100).map {
+        return (0..30).map {
             "$sub 测试 $it "
         }
     }

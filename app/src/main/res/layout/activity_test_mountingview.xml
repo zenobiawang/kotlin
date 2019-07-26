@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.example.wanghui.kotlin.ui.nestedscroll.MountingView1 xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/flower_blue">
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/mountingHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/sky_blue"/>
+    <android.support.design.widget.TabLayout
+        android:id="@+id/mountingTab"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/pink"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/mountingTail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/little_yellow"/>
+</com.example.wanghui.kotlin.ui.nestedscroll.MountingView1>
