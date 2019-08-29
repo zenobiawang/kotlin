@@ -16,9 +16,13 @@ import android.view.ViewGroup
  * 一个可以吸顶的view
  * 版本1： recyclerView + tab + recyclerView 测试
  */
-class MountingView1@JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0): ViewGroup(context, attrs, defStyleAttr), NestedScrollingParent {
+class MountingView1 @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : ViewGroup(context, attrs, defStyleAttr), NestedScrollingParent {
     private val nestedScrollHelper by lazy { NestedScrollingParentHelper(this) }
     private val scroller: ScrollerCompat by lazy { ScrollerCompat.create(getContext(), null) }
+    private val FLING_FROM_HEADER_TO_MINE = 0
+    private val FLING_FROM_TAIL_TO_MINE = 1
+
+    private var flingState = FLING_FROM_HEADER_TO_MINE
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
@@ -29,13 +33,13 @@ class MountingView1@JvmOverloads constructor(context: Context, attrs: AttributeS
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         var layoutTop = 0
-        for (i in 0 until childCount){
+        for (i in 0 until childCount) {
             layoutTop = layoutChild(getChildAt(i), layoutTop)
         }
     }
 
-    private fun layoutChild(child: View?, top: Int): Int{
-        child?:return top
+    private fun layoutChild(child: View?, top: Int): Int {
+        child ?: return top
         val bottom = top + (child.measuredHeight)
         child.layout(0, top, child.measuredWidth, bottom)
         return bottom
@@ -73,7 +77,7 @@ class MountingView1@JvmOverloads constructor(context: Context, attrs: AttributeS
         Log.d("wh", "wh------- onNestedPreScroll target-${target.hashCode()} dx-$dx dy-$dy " +
                 "consumed-${consumed?.get(0)}、${consumed?.get(1)}")
         if ((dy > 0 && scrollY < getScrollRange() && isHeaderBottom())
-                ||(dy < 0 && scrollY > 0 && isTailTop())){
+                || (dy < 0 && scrollY > 0 && isTailTop())) {
             scrollBy(0, dy)
             postInvalidate()
             consumed[1] = dy
@@ -87,18 +91,21 @@ class MountingView1@JvmOverloads constructor(context: Context, attrs: AttributeS
 
     override fun onNestedPreFling(target: View?, velocityX: Float, velocityY: Float): Boolean {
         Log.d("wh", "wh------- onNestedPreFling target-${target.hashCode()} velocityX-$velocityX velocityY-$velocityY")
-        val canFling: Boolean = if (velocityY > 0 && isHeaderBottom()){
-            scrollY < getScrollRange()
-        }else if (velocityY < 0 && isTailTop()){
-            scrollY > 0
-        }else{
-            false
+        if ((velocityY > 0 && scrollY == getScrollRange())
+                || (velocityY < 0 && scrollY == 0)) {
+            return false
+        }else if (isHeaderBottom() && velocityY > 0 && scrollY < getScrollRange()){
+            fling(velocityY)
+            return true
+        }else if (isTailTop() && velocityY < 0 && scrollY > 0){
+            fling(velocityY)
+            return true
         }
         //        val canFling = (scrollY > 0 || velocityY > 0) && (scrollY < getScrollRange() || velocityY < 0)
-        if (canFling) {
-            fling(velocityY)
-        }
-        return canFling
+//        if (canFling) {
+//            fling(velocityY)
+//        }
+        return false
     }
 
     override fun getNestedScrollAxes(): Int {
@@ -106,22 +113,36 @@ class MountingView1@JvmOverloads constructor(context: Context, attrs: AttributeS
         return nestedScrollHelper.nestedScrollAxes
     }
 
+    private var headerFling = false
+    private var tailFling = false
     override fun computeScroll() {
-        Log.d("wh", "wh----- computeScroll ${scroller.currY}")
-        if (scroller!!.computeScrollOffset()){
-            scrollTo(0, scroller!!.currY)
-            postInvalidate()
+        val currentY = scroller.currY
+        val currVelocity = scroller.currVelocity
+        Log.d("wh", "wh----- computeScroll ${scroller.currY}   currVelocity $currVelocity")
+        if (!scroller.computeScrollOffset()) return
+        when {
+            currentY < 0 -> scrollTo(0, 0)
+            currentY > getScrollRange() -> scrollTo(0, getScrollRange())
+            else -> scrollTo(0, currentY)
+        }
+        postInvalidate()
+        if (currentY <= 0 && !headerFling) {
+            (getChildAt(0) as RecyclerView).fling(0, -currVelocity.toInt())
+            scroller.abortAnimation()
+        }else if (currentY >= getScrollRange()){
+            (getChildAt(2) as RecyclerView).fling(0, currVelocity.toInt())
+            scroller.abortAnimation()
         }
     }
 
-    private fun fling(velocityY: Float){
-        scroller.fling(scrollX, scrollY, 0, velocityY.toInt(), 0, 0, 0,
-                Math.max(0, getScrollRange()), 0, 0)
+    private fun fling(velocityY: Float) {
+        scroller.fling(scrollX, scrollY, 0, velocityY.toInt(), 0, 0, Int.MIN_VALUE,
+                Int.MAX_VALUE, 0, 0)
     }
 
-    private fun getScrollRange(): Int{
+    private fun getScrollRange(): Int {
         var contentHeight = 0
-        for (i in 0 until childCount){
+        for (i in 0 until childCount) {
             contentHeight += getChildAt(i).height
         }
         return Math.max(0, contentHeight - height + paddingTop + paddingBottom)
@@ -130,16 +151,16 @@ class MountingView1@JvmOverloads constructor(context: Context, attrs: AttributeS
     /**
      * 判断头部是否滚动到底部
      */
-    private fun isHeaderBottom(): Boolean{
-        val header = getChildAt(0) as? RecyclerView?:return true
+    private fun isHeaderBottom(): Boolean {
+        val header = getChildAt(0) as? RecyclerView ?: return true
         return header.computeVerticalScrollExtent() + header.computeVerticalScrollOffset() >= header.computeVerticalScrollRange()
     }
 
     /**
      * 判断尾部是否滚动到头部
      */
-    private fun isTailTop(): Boolean{
-        val tail = getChildAt(2) as? RecyclerView?:return true
+    private fun isTailTop(): Boolean {
+        val tail = getChildAt(2) as? RecyclerView ?: return true
         return tail.computeVerticalScrollOffset() == 0
     }
 
